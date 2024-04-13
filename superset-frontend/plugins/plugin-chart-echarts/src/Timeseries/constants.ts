@@ -85,6 +85,12 @@ export const DEFAULT_FORM_DATA: EchartsTimeseriesFormData = {
   orientation: OrientationType.Vertical,
   sort_series_type: 'sum',
   sort_series_ascending: false,
+  yAxisShow: true,
+  xAxisShow: true,
+  xAxisLabelsShow: true,
+  xAxisTicksShow: true,
+  legendLabelColor: { r: 0, g: 122, b: 135, a: 1 },
+  legendOnlyHighCritical: true,
 };
 
 export const TIME_SERIES_DESCRIPTION_TEXT: string = t(
