@@ -410,7 +410,7 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     # editor no longer shows. Currently this is set to false so that the editor
     # option does show, but we will be depreciating it.
     "DISABLE_LEGACY_DATASOURCE_EDITOR": True,
-    "ENABLE_TEMPLATE_PROCESSING": False,
+    "ENABLE_TEMPLATE_PROCESSING": True,
     # Allow for javascript controls components
     # this enables programmers to customize certain charts (like the
     # geospatial ones) by inputting javascript in controls. This exposes
@@ -462,7 +462,7 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     "DRILL_TO_DETAIL": True,
     "DRILL_BY": True,
     "DATAPANEL_CLOSED_BY_DEFAULT": False,
-    "HORIZONTAL_FILTER_BAR": False,
+    "HORIZONTAL_FILTER_BAR": True,
     # The feature is off by default, and currently only supported in Presto and Postgres,
     # and Bigquery.
     # It also needs to be enabled on a per-database basis, by adding the key/value pair
@@ -563,16 +563,16 @@ COMMON_BOOTSTRAP_OVERRIDES_FUNC: Callable[
 
 # EXTRA_CATEGORICAL_COLOR_SCHEMES is used for adding custom categorical color schemes
 # example code for "My custom warm to hot" color scheme
-# EXTRA_CATEGORICAL_COLOR_SCHEMES = [
-#     {
-#         "id": 'myVisualizationColors',
-#         "description": '',
-#         "label": 'My Visualization Colors',
-#         "isDefault": True,
-#         "colors":
-#          ['#006699', '#009DD9', '#5AAA46', '#44AAAA', '#DDAA77', '#7799BB', '#88AA77',
-#          '#552288', '#5AAA46', '#CC7788', '#EEDD55', '#9977BB', '#BBAA44', '#DDCCDD']
-#     }]
+EXTRA_CATEGORICAL_COLOR_SCHEMES = [
+    {
+        "id": 'multiboardScheme',
+        "description": 'Кольорова схема для графіку атак',
+        "isDiverging": True,
+        "label": 'Кольорова схема для графіку атак',
+        "isDefault": False,
+        "colors":
+         ['#a6a6a6', '#7f7f7f', '#f67b7f', '#fe0103']
+    }]
 
 # This is merely a default
 EXTRA_CATEGORICAL_COLOR_SCHEMES: list[dict[str, Any]] = []
@@ -597,17 +597,16 @@ EXTRA_CATEGORICAL_COLOR_SCHEMES: list[dict[str, Any]] = []
 THEME_OVERRIDES: dict[str, Any] = {}
 
 # EXTRA_SEQUENTIAL_COLOR_SCHEMES is used for adding custom sequential color schemes
-# EXTRA_SEQUENTIAL_COLOR_SCHEMES =  [
-#     {
-#         "id": 'warmToHot',
-#         "description": '',
-#         "isDiverging": True,
-#         "label": 'My custom warm to hot',
-#         "isDefault": True,
-#         "colors":
-#          ['#552288', '#5AAA46', '#CC7788', '#EEDD55', '#9977BB', '#BBAA44', '#DDCCDD',
-#          '#006699', '#009DD9', '#5AAA46', '#44AAAA', '#DDAA77', '#7799BB', '#88AA77']
-#     }]
+EXTRA_SEQUENTIAL_COLOR_SCHEMES =  [
+    {
+        "id": 'multiboardScheme',
+        "description": 'Кольорова схема для графіку атак',
+        "isDiverging": True,
+        "label": 'Кольорова схема для графіку атак',
+        "isDefault": False,
+        "colors":
+         ['#a6a6a6', '#7f7f7f', '#f67b7f', '#fe0103']
+    }]
 
 # This is merely a default
 EXTRA_SEQUENTIAL_COLOR_SCHEMES: list[dict[str, Any]] = []

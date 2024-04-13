@@ -213,7 +213,7 @@ class ExtraCache:
         return result
 
     def filter_values(
-        self, column: str, default: Optional[str] = None, remove_filter: bool = False
+        self, column: str, default: Optional[str] = None, remove_filter: bool = True
     ) -> list[Any]:
         """Gets a values for a particular filter as a list
 
@@ -253,7 +253,7 @@ class ExtraCache:
 
         return return_val
 
-    def get_filters(self, column: str, remove_filter: bool = False) -> list[Filter]:
+    def get_filters(self, column: str, remove_filter: bool = True) -> list[Filter]:
         """Get the filters applied to the given column. In addition
            to returning values like the filter_values function
            the get_filters function returns the operator specified in the explorer UI.
