@@ -32,6 +32,7 @@ import {
 //   DEFAULT_TITLE_FORM_DATA,
 // } from '../constants';
 import { defaultXAxis } from '../defaults';
+import { LABEL_FONT_SIZE_OPTIONS } from 'packages/superset-ui-chart-controls/src/sections';
 
 // @ts-ignore
 export const DEFAULT_FORM_DATA: EchartsTimeseriesFormData = {
@@ -86,8 +87,10 @@ export const DEFAULT_FORM_DATA: EchartsTimeseriesFormData = {
   sort_series_type: 'sum',
   sort_series_ascending: false,
   yAxisShow: true,
+  yAxisSplitLineShow: true,
   xAxisShow: true,
   xAxisLabelsShow: true,
+  xAxisLabelFontSize: LABEL_FONT_SIZE_OPTIONS[0],
   xAxisTicksShow: true,
   legendLabelColor: { r: 0, g: 122, b: 135, a: 1 },
   legendOnlyHighCritical: true,

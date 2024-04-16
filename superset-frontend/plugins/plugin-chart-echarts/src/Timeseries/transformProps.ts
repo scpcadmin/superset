@@ -183,8 +183,10 @@ export default function transformProps(
     yAxisTitlePosition,
     zoomable,
     yAxisShow,
+    yAxisSplitLineShow,
     xAxisShow,
     xAxisLabelsShow,
+    xAxisLabelFontSize,
     xAxisTicksShow,
     legendLabelColor,
     legendOnlyHighCritical,
@@ -454,7 +456,7 @@ export default function transformProps(
         return entry
       }
       else {
-        return entry.name !== 'низький рівень' && entry.name !== 'середній рівень';
+        return entry.name !== ' низький рівень' && entry.name !== '  середній рівень';
       }
     })
     .filter(
@@ -474,13 +476,13 @@ export default function transformProps(
       show: xAxisLabelsShow,
       hideOverlap: true,
       formatter: (params: any) => {
-        return xAxisFormatter(+params);
+        return xAxisFormatter !== undefined ? xAxisFormatter(+params) : xAxisFormatter;
       },
       rotate: xAxisLabelRotation,
       color: `rgba(${legendLabelColor.r}, ${legendLabelColor.g}, ${legendLabelColor.b}, ${legendLabelColor.a})`,
       interval: 0,
       fontWeight: 'bold',
-      fontSize: 20,
+      fontSize: xAxisLabelFontSize,
       margin: 16
     },
     minorTick: { show: minorTicks },
@@ -508,6 +510,9 @@ export default function transformProps(
     max: yAxisMax,
     minorTick: { show: minorTicks },
     minorSplitLine: { show: minorSplitLine },
+    splitLine: {
+      show: yAxisSplitLineShow
+    },
     axisLabel: {
       formatter: getYAxisFormatter(
         metrics,
@@ -598,6 +603,9 @@ export default function transformProps(
         legendState,
       ),
       data: legendData as string[],
+      formatter: function(name) {
+        return name.trim();
+      },
       textStyle: {
         color: `rgba(${legendLabelColor.r}, ${legendLabelColor.g}, ${legendLabelColor.b}, ${legendLabelColor.a})`,
         fontSize: 20

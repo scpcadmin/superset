@@ -26,6 +26,9 @@ import { formatSelectOptions } from '../utils';
 export const TITLE_MARGIN_OPTIONS: number[] = [
   15, 30, 50, 75, 100, 125, 150, 200,
 ];
+export const LABEL_FONT_SIZE_OPTIONS: number[] = [
+  10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20
+];
 export const TITLE_POSITION_OPTIONS: [string, string][] = [
   ['Left', t('Left')],
   ['Top', t('Top')],

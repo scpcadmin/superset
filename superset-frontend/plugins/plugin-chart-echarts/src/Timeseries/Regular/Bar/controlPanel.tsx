@@ -46,6 +46,7 @@ import {
   DEFAULT_FORM_DATA,
   TIME_SERIES_DESCRIPTION_TEXT,
 } from '../../constants';
+import { LABEL_FONT_SIZE_OPTIONS } from 'packages/superset-ui-chart-controls/src/sections/chartTitle';
 
 const {
   logAxis,
@@ -177,6 +178,20 @@ function createAxisControl(axis: 'x' | 'y'): ControlSetRow[] {
           ...xAxisLabelRotation.config,
           visibility: ({ controls }: ControlPanelsContainerProps) =>
             isXAxis ? isVertical(controls) : isHorizontal(controls),
+        },
+      },
+    ],
+    [
+      {
+        name: 'xAxisLabelFontSize',
+        config: {
+          type: 'SelectControl',
+          freeForm: true,
+          clearable: true,
+          label: t('X AXIS LABEL FONT SIZE'),
+          renderTrigger: true,
+          default: LABEL_FONT_SIZE_OPTIONS[0],
+          description: t('Changing this control takes effect instantly'),
         },
       },
     ],
