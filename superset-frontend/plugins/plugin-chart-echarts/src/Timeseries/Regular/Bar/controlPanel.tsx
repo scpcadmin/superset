@@ -46,6 +46,7 @@ import {
   DEFAULT_FORM_DATA,
   TIME_SERIES_DESCRIPTION_TEXT,
 } from '../../constants';
+import { LABEL_FONT_SIZE_OPTIONS } from 'packages/superset-ui-chart-controls/src/sections/chartTitle';
 
 const {
   logAxis,
@@ -54,6 +55,12 @@ const {
   yAxisBounds,
   zoomable,
   orientation,
+  yAxisShow,
+  xAxisShow,
+  xAxisLabelsShow,
+  xAxisTicksShow,
+  legendLabelColor,
+  legendOnlyHighCritical
 } = DEFAULT_FORM_DATA;
 
 function createAxisTitleControl(axis: 'x' | 'y'): ControlSetRow[] {
@@ -176,6 +183,20 @@ function createAxisControl(axis: 'x' | 'y'): ControlSetRow[] {
     ],
     [
       {
+        name: 'xAxisLabelFontSize',
+        config: {
+          type: 'SelectControl',
+          freeForm: true,
+          clearable: true,
+          label: t('X AXIS LABEL FONT SIZE'),
+          renderTrigger: true,
+          default: LABEL_FONT_SIZE_OPTIONS[0],
+          description: t('Changing this control takes effect instantly'),
+        },
+      },
+    ],
+    [
+      {
         name: 'y_axis_format',
         config: {
           ...sharedControls.y_axis_format,
@@ -247,6 +268,90 @@ function createAxisControl(axis: 'x' | 'y'): ControlSetRow[] {
           visibility: ({ controls }: ControlPanelsContainerProps) =>
             Boolean(controls?.truncateYAxis?.value) &&
             (isXAxis ? isHorizontal(controls) : isVertical(controls)),
+        },
+      },
+    ],
+    [
+      {
+        name: 'yAxisShow',
+        config: {
+          type: 'CheckboxControl',
+          label: t('Y AXIS SHOW'),
+          renderTrigger: true,
+          default: yAxisShow,
+          description: t('Show y axis'),
+          visibility: ({ controls }: ControlPanelsContainerProps) =>
+            isXAxis ? isHorizontal(controls) : isVertical(controls),
+        },
+      },
+    ],
+    [
+      {
+        name: 'xAxisShow',
+        config: {
+          type: 'CheckboxControl',
+          label: t('X AXIS SHOW'),
+          renderTrigger: true,
+          default: xAxisShow,
+          description: t('Show x axis'),
+          visibility: ({ controls }: ControlPanelsContainerProps) =>
+            isXAxis ? isHorizontal(controls) : isVertical(controls),
+        },
+      },
+    ],
+    [
+      {
+        name: 'xAxisLabelsShow',
+        config: {
+          type: 'CheckboxControl',
+          label: t('X AXIS LABELS SHOW'),
+          renderTrigger: true,
+          default: xAxisLabelsShow,
+          description: t('Show x axis labels'),
+          visibility: ({ controls }: ControlPanelsContainerProps) =>
+            isXAxis ? isHorizontal(controls) : isVertical(controls),
+        },
+      },
+    ],
+    [
+      {
+        name: 'xAxisTicksShow',
+        config: {
+          type: 'CheckboxControl',
+          label: t('X AXIS TICKS SHOW'),
+          renderTrigger: true,
+          default: xAxisTicksShow,
+          description: t('Show x axis ticks'),
+          visibility: ({ controls }: ControlPanelsContainerProps) =>
+            isXAxis ? isHorizontal(controls) : isVertical(controls),
+        },
+      },
+    ],
+    [
+      {
+        name: 'LegendOnlyHighCritical',
+        config: {
+          type: 'CheckboxControl',
+          label: t('Show only high and critical labels'),
+          renderTrigger: true,
+          default: legendOnlyHighCritical,
+          description: t('Show only high and critical labels'),
+          visibility: ({ controls }: ControlPanelsContainerProps) =>
+            isXAxis ? isHorizontal(controls) : isVertical(controls),
+        },
+      },
+    ],
+    [
+      {
+        name: 'legendLabelColor',
+        config: {
+          type: 'ColorPickerControl',
+          label: t('Legend Label Color'),
+          default: legendLabelColor,
+          renderTrigger: true,
+          description: t('Color of the legend label'),
+          visibility: ({ controls }: ControlPanelsContainerProps) =>
+            isXAxis ? isHorizontal(controls) : isVertical(controls),
         },
       },
     ],

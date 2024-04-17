@@ -80,6 +80,7 @@ import { PivotTableChartPlugin as PivotTableChartPluginV2 } from '@superset-ui/p
 import { HandlebarsChartPlugin } from '@superset-ui/plugin-chart-handlebars';
 import { FilterPlugins } from 'src/constants';
 import TimeTableChartPlugin from '../TimeTable';
+import { MultiboardTargets } from 'multiboard-targets';
 
 export default class MainPreset extends Preset {
   constructor() {
@@ -174,6 +175,7 @@ export default class MainPreset extends Preset {
         new HandlebarsChartPlugin().configure({ key: 'handlebars' }),
         new EchartsBubbleChartPlugin().configure({ key: 'bubble_v2' }),
         ...experimentalPlugins,
+        new MultiboardTargets().configure({ key: 'multiboard-targets' }),
       ],
     });
   }

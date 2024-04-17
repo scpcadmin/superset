@@ -22,7 +22,7 @@ import {
   ControlPanelConfig,
   ControlPanelsContainerProps,
   ControlSubSectionHeader,
-  D3_TIME_FORMAT_DOCS,
+  D3_TIME_FORMAT_DOCS, formatSelectOptions,
   getStandardizedControls,
   sections,
   sharedControls,
@@ -43,6 +43,7 @@ import {
   xAxisBounds,
   xAxisLabelRotation,
 } from '../../../controls';
+import { LABEL_FONT_SIZE_OPTIONS } from 'packages/superset-ui-chart-controls/src/sections/chartTitle';
 
 const {
   area,
@@ -56,6 +57,13 @@ const {
   truncateYAxis,
   yAxisBounds,
   zoomable,
+  yAxisShow,
+  yAxisSplitLineShow,
+  xAxisShow,
+  xAxisLabelsShow,
+  xAxisLabelFontSize,
+  xAxisTicksShow,
+  legendLabelColor,
 } = DEFAULT_FORM_DATA;
 const config: ControlPanelConfig = {
   controlPanelSections: [
@@ -183,6 +191,20 @@ const config: ControlPanelConfig = {
           },
         ],
         [xAxisLabelRotation],
+        [
+          {
+            name: 'xAxisLabelFontSize',
+            config: {
+              type: 'SelectControl',
+              freeForm: true,
+              clearable: true,
+              label: t('X AXIS LABEL FONT SIZE'),
+              renderTrigger: true,
+              default: LABEL_FONT_SIZE_OPTIONS[0],
+              description: t('Changing this control takes effect instantly'),
+            },
+          },
+        ],
         ...richTooltipSection,
         // eslint-disable-next-line react/jsx-key
         [<ControlSubSectionHeader>{t('Y Axis')}</ControlSubSectionHeader>],
@@ -244,6 +266,78 @@ const config: ControlPanelConfig = {
               ),
               visibility: ({ controls }: ControlPanelsContainerProps) =>
                 Boolean(controls?.truncateYAxis?.value),
+            },
+          },
+        ],
+        [
+          {
+            name: 'yAxisShow',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Y AXIS SHOW'),
+              renderTrigger: true,
+              default: yAxisShow,
+              description: t('Show y axis'),
+            },
+          },
+        ],
+        [
+          {
+            name: 'yAxisSplitLineShow',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Y AXIS SPLIT LINE SHOW'),
+              renderTrigger: true,
+              default: yAxisSplitLineShow,
+              description: t('Show y axis split line'),
+            },
+          },
+        ],
+        [
+          {
+            name: 'xAxisShow',
+            config: {
+              type: 'CheckboxControl',
+              label: t('X AXIS SHOW'),
+              renderTrigger: true,
+              default: xAxisShow,
+              description: t('Show x axis'),
+            },
+          },
+        ],
+        [
+          {
+            name: 'xAxisLabelsShow',
+            config: {
+              type: 'CheckboxControl',
+              label: t('X AXIS LABELS SHOW'),
+              renderTrigger: true,
+              default: xAxisLabelsShow,
+              description: t('Show x axis labels'),
+            },
+          },
+        ],
+        [
+          {
+            name: 'xAxisTicksShow',
+            config: {
+              type: 'CheckboxControl',
+              label: t('X AXIS TICKS SHOW'),
+              renderTrigger: true,
+              default: xAxisTicksShow,
+              description: t('Show x axis ticks'),
+            },
+          },
+        ],
+        [
+          {
+            name: 'legendLabelColor',
+            config: {
+              type: 'ColorPickerControl',
+              label: t('Legend Label Color'),
+              default: legendLabelColor,
+              renderTrigger: true,
+              description: t('Color of the legend label'),
             },
           },
         ],

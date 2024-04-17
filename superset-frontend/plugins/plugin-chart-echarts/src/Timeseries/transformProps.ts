@@ -182,6 +182,14 @@ export default function transformProps(
     yAxisTitleMargin,
     yAxisTitlePosition,
     zoomable,
+    yAxisShow,
+    yAxisSplitLineShow,
+    xAxisShow,
+    xAxisLabelsShow,
+    xAxisLabelFontSize,
+    xAxisTicksShow,
+    legendLabelColor,
+    legendOnlyHighCritical,
   }: EchartsTimeseriesFormData = { ...DEFAULT_FORM_DATA, ...formData };
   const refs: Refs = {};
 
@@ -443,6 +451,14 @@ export default function transformProps(
   );
 
   const legendData = rawSeries
+    .filter(entry => {
+      if (!legendOnlyHighCritical) {
+        return entry
+      }
+      else {
+        return entry.name !== ' низький рівень' && entry.name !== '  середній рівень';
+      }
+    })
     .filter(
       entry =>
         extractForecastSeriesContext(entry.name || '').type ===
@@ -457,9 +473,17 @@ export default function transformProps(
     nameGap: convertInteger(xAxisTitleMargin),
     nameLocation: 'middle',
     axisLabel: {
+      show: xAxisLabelsShow,
       hideOverlap: true,
-      formatter: xAxisFormatter,
+      formatter: (params: any) => {
+        return xAxisFormatter !== undefined ? xAxisFormatter(+params) : xAxisFormatter;
+      },
       rotate: xAxisLabelRotation,
+      color: `rgba(${legendLabelColor.r}, ${legendLabelColor.g}, ${legendLabelColor.b}, ${legendLabelColor.a})`,
+      interval: 0,
+      fontWeight: 'bold',
+      fontSize: xAxisLabelFontSize,
+      margin: 16
     },
     minorTick: { show: minorTicks },
     minInterval:
@@ -473,6 +497,10 @@ export default function transformProps(
       xAxisMax,
       seriesType,
     ),
+    show: xAxisShow,
+    axisTick: {
+      show: xAxisTicksShow
+    },
   };
 
   let yAxis: any = {
@@ -482,6 +510,9 @@ export default function transformProps(
     max: yAxisMax,
     minorTick: { show: minorTicks },
     minorSplitLine: { show: minorSplitLine },
+    splitLine: {
+      show: yAxisSplitLineShow
+    },
     axisLabel: {
       formatter: getYAxisFormatter(
         metrics,
@@ -495,6 +526,7 @@ export default function transformProps(
     name: yAxisTitle,
     nameGap: convertInteger(yAxisTitleMargin),
     nameLocation: yAxisTitlePosition === 'Left' ? 'middle' : 'end',
+    show: yAxisShow
   };
 
   if (isHorizontal) {
@@ -504,6 +536,9 @@ export default function transformProps(
   }
 
   const echartOptions: EChartsCoreOption = {
+    textStyle: {
+      fontFamily: 'eUkraine, sans-serif'
+    },
     useUTC: true,
     grid: {
       ...defaultGrid,
@@ -568,8 +603,25 @@ export default function transformProps(
         legendState,
       ),
       data: legendData as string[],
+      formatter: function(name) {
+        return name.trim();
+      },
+      textStyle: {
+        color: `rgba(${legendLabelColor.r}, ${legendLabelColor.g}, ${legendLabelColor.b}, ${legendLabelColor.a})`,
+        fontSize: 20
+      }
     },
-    series: dedupSeries(series),
+    series: dedupSeries(series).map(series => (
+      {
+        ...series,
+        label: {
+          ...series.label,
+          color: `rgba(${legendLabelColor.r}, ${legendLabelColor.g}, ${legendLabelColor.b}, ${legendLabelColor.a})`,
+          position: 'insideBottom',
+          fontSize: 16,
+        }
+      }
+    )),
     toolbox: {
       show: zoomable,
       top: TIMESERIES_CONSTANTS.toolboxTop,

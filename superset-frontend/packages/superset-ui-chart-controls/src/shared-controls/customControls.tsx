@@ -173,7 +173,7 @@ export const xAxisForceCategoricalControl = {
       checkColumnType(
         getColumnLabel(controls?.x_axis?.value as QueryFormColumn),
         controls?.datasource?.datasource,
-        [GenericDataType.Numeric],
+        [GenericDataType.Numeric, GenericDataType.Temporal],
       ),
     shouldMapStateToProps: () => true,
   },
