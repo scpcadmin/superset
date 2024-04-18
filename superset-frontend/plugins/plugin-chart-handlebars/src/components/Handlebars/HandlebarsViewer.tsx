@@ -88,4 +88,13 @@ Handlebars.registerHelper('stringify', (obj: any, obj2: any) => {
   return isPlainObject(obj) ? JSON.stringify(obj) : String(obj);
 });
 
+Handlebars.registerHelper(
+  'percentageDiff',
+  function (value1: number, value2: number, decimals: number) {
+    const diff = value2 - value1;
+    const percentage = (diff / value1) * 100;
+    return `${percentage.toFixed(decimals)}`;
+  },
+);
+
 Helpers.registerHelpers(Handlebars);
