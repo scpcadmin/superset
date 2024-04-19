@@ -139,6 +139,7 @@ export default function PivotTableChart(props: PivotTableProps) {
     colSubtotalPosition,
     colTotals,
     colSubTotals,
+    withoutAggregation,
     rowTotals,
     rowSubTotals,
     valueFormat,
@@ -435,6 +436,7 @@ export default function PivotTableChart(props: PivotTableProps) {
       clickColumnHeaderCallback: toggleFilter,
       colTotals,
       colSubTotals,
+      withoutAggregation,
       rowTotals,
       rowSubTotals,
       highlightHeaderCellsOnHover:
@@ -452,6 +454,7 @@ export default function PivotTableChart(props: PivotTableProps) {
       dateFormatters,
       emitCrossFilters,
       metricColorFormatters,
+      withoutAggregation,
       rowTotals,
       rowSubTotals,
       selectedFilters,
@@ -555,6 +558,7 @@ export default function PivotTableChart(props: PivotTableProps) {
           subtotalOptions={subtotalOptions}
           namesMapping={verboseMap}
           onContextMenu={handleContextMenu}
+          withoutAggregation={withoutAggregation}
         />
       </PivotTableWrapper>
     </Styles>

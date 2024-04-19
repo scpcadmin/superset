@@ -169,7 +169,7 @@ const config: ControlPanelConfig = {
             config: {
               type: 'SelectControl',
               label: t('Aggregation function'),
-              clearable: false,
+              clearable: true,
               choices: [
                 ['Count', t('Count')],
                 ['Count Unique Values', t('Count Unique Values')],
@@ -193,11 +193,23 @@ const config: ControlPanelConfig = {
                   t('Count as Fraction of Columns'),
                 ],
               ],
-              default: 'Sum',
+              default: '',
               description: t(
                 'Aggregate function to apply when pivoting and computing the total rows and columns',
               ),
               renderTrigger: true,
+            },
+          },
+        ],
+        [
+          {
+            name: 'withoutAggregation',
+            config: {
+              type: 'CheckboxControl',
+              label: t('Without aggregation'),
+              default: false,
+              renderTrigger: true,
+              description: t('Without aggregation function'),
             },
           },
         ],

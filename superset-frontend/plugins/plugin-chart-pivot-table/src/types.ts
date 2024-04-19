@@ -64,6 +64,7 @@ interface PivotTableCustomizeProps {
   colSubtotalPosition: boolean;
   colTotals: boolean;
   colSubTotals: boolean;
+  withoutAggregation: boolean;
   rowTotals: boolean;
   rowSubTotals: boolean;
   valueFormat: string;

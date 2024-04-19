@@ -502,7 +502,11 @@ export class TableRenderer extends React.Component {
         </th>
       ) : null;
 
-    const cells = [spaceCell, attrNameCell, ...attrValueCells, totalCell];
+    const cells = [
+      spaceCell,
+      attrNameCell,
+      ...attrValueCells,
+      totalCell];
     return <tr key={`colAttr-${attrIdx}`}>{cells}</tr>;
   }
 
@@ -562,8 +566,8 @@ export class TableRenderer extends React.Component {
         >
           {colAttrs.length === 0
             ? t('Total (%(aggregatorName)s)', {
-                aggregatorName: t(this.props.aggregatorName),
-              })
+              aggregatorName: t(this.props.aggregatorName),
+            })
             : null}
         </th>
       </tr>
@@ -861,9 +865,11 @@ export class TableRenderer extends React.Component {
       rowAttrs,
       rowKeys,
       colKeys,
+      withoutAggregation,
       colTotals,
       rowSubtotalDisplay,
       colSubtotalDisplay,
+      pivotData
     } = this.cachedBasePivotSettings;
 
     // Need to account for exclusions to compute the effective row
@@ -895,16 +901,16 @@ export class TableRenderer extends React.Component {
       <Styles isDashboardEditMode={this.isDashboardEditMode()}>
         <table className="pvtTable" role="grid">
           <thead>
-            {colAttrs.map((c, j) =>
-              this.renderColHeaderRow(c, j, pivotSettings),
-            )}
-            {rowAttrs.length !== 0 && this.renderRowHeaderRow(pivotSettings)}
+          {colAttrs.map((c, j) =>
+            this.renderColHeaderRow(c, j, pivotSettings),
+          )}
+          {rowAttrs.length !== 0 && this.renderRowHeaderRow(pivotSettings)}
           </thead>
           <tbody>
-            {visibleRowKeys.map((r, i) =>
-              this.renderTableRow(r, i, pivotSettings),
-            )}
-            {colTotals && this.renderTotalsRow(pivotSettings)}
+          {visibleRowKeys.map((r, i) =>
+            this.renderTableRow(r, i, pivotSettings),
+          )}
+          {colTotals && !pivotData.props.withoutAggregation && this.renderTotalsRow(pivotSettings)}
           </tbody>
         </table>
       </Styles>

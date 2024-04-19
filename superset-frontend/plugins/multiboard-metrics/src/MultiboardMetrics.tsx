@@ -87,8 +87,9 @@ interface MetricsProps {
   totalincidentsforpreviousday: number | null;
   criticalincidentspreviousday: number | null;
   totalincidentscurrentyear: number | null;
-  totalincidentssameperiofpreviousyear: number | null;
-  amount: number | null;
+  totalhighandcriticalincidentsfrombegginingoftheyear: number | null;
+  totalhighandcriticalincidentsforsameperiodpreviousyear: number | null;
+  amountofcyberdefenceobjects: number | null;
   date_added: number;
 }
 
@@ -177,8 +178,8 @@ export default function MultiboardMetrics(props: MultiboardMetricsProps) {
 
   const metrix = data[0] as unknown as MetricsProps;
   const direction = calculateDirection(
-    metrix.totalincidentscurrentyear,
-    metrix.totalincidentssameperiofpreviousyear,
+    metrix.totalhighandcriticalincidentsfrombegginingoftheyear,
+    metrix.totalhighandcriticalincidentsforsameperiodpreviousyear,
   );
 
   return (
@@ -204,13 +205,13 @@ export default function MultiboardMetrics(props: MultiboardMetricsProps) {
         />
         <MetricCard
           value={
-            metrix.totalincidentscurrentyear &&
-            metrix.totalincidentssameperiofpreviousyear &&
+            metrix.totalhighandcriticalincidentsfrombegginingoftheyear &&
+            metrix.totalhighandcriticalincidentsforsameperiodpreviousyear &&
             (direction === 'up' || direction === 'down')
               ? `${Math.abs(
-                  ((metrix.totalincidentscurrentyear -
-                    metrix.totalincidentssameperiofpreviousyear) /
-                    metrix.totalincidentssameperiofpreviousyear) *
+                  ((metrix.totalhighandcriticalincidentsfrombegginingoftheyear -
+                    metrix.totalhighandcriticalincidentsforsameperiodpreviousyear) /
+                    metrix.totalhighandcriticalincidentsforsameperiodpreviousyear) *
                     100,
                 ).toFixed(0)}%`
               : null
@@ -219,7 +220,10 @@ export default function MultiboardMetrics(props: MultiboardMetricsProps) {
           direction={direction}
           prefix="на&nbsp;"
         />
-        <MetricCard value={metrix.amount} text="об’єктів кіберзахисту" />
+        <MetricCard
+          value={metrix.amountofcyberdefenceobjects}
+          text="об’єктів кіберзахисту"
+        />
       </div>
     </Styles>
   );
