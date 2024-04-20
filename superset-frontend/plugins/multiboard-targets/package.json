@@ -1,5 +1,5 @@
 {
-  "name": "multiboard-targets",
+  "name": "@superset-ui/multiboard-targets",
   "version": "0.1.0",
   "description": "Multiboard Targets",
   "sideEffects": false,

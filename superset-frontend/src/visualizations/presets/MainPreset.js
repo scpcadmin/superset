@@ -80,8 +80,8 @@ import { PivotTableChartPlugin as PivotTableChartPluginV2 } from '@superset-ui/p
 import { HandlebarsChartPlugin } from '@superset-ui/plugin-chart-handlebars';
 import { FilterPlugins } from 'src/constants';
 import TimeTableChartPlugin from '../TimeTable';
-import { MultiboardTargets } from 'multiboard-targets';
-import { MultiboardMetrics } from 'multiboard-metrics';
+import { MultiboardTargets } from '@superset-ui/multiboard-targets';
+import { MultiboardMetrics } from '@superset-ui/multiboard-metrics';
 
 export default class MainPreset extends Preset {
   constructor() {

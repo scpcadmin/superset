@@ -1,5 +1,5 @@
 {
-  "name": "multiboard-metrics",
+  "name": "@superset-ui/multiboard-metrics",
   "version": "0.1.0",
   "description": "Multiboard Metrics",
   "sideEffects": false,
