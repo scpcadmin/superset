@@ -63,6 +63,7 @@ class BaseScreenshot:
         self.digest: str = digest
         self.url = url
         self.screenshot: bytes | None = None
+        self.tab_screenshots: List[bytes] | None = None
 
     def driver(self, window_size: WindowSize | None = None) -> WebDriver:
         window_size = window_size or self.window_size
@@ -92,6 +93,13 @@ class BaseScreenshot:
         driver = self.driver(window_size)
         self.screenshot = driver.get_screenshot(self.url, self.element, user)
         return self.screenshot
+
+    def get_tabs_screenshots(
+            self, user: User, window_size: WindowSize | None = None
+        ) -> bytes | None:
+            driver = self.driver(window_size)
+            self.tab_screenshots = driver.get_screenshots_for_tabs(self.url, self.element, user)
+            return self.tab_screenshots
 
     def get(
         self,

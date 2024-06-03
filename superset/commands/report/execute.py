@@ -239,6 +239,34 @@ class BaseReportState:
             raise ReportScheduleScreenshotFailedError()
         return [image]
 
+    def _get_tabs_screenshots(self) -> list[bytes]:
+        """
+        Get chart or dashboard screenshots for all tabs
+        :raises: ReportScheduleScreenshotFailedError
+        """
+        # url = self._get_url()
+        url = "http://localhost:8088/superset/dashboard/p/jnPQZ20QYKD/"
+#         _, username = get_executor(
+#             executor_types=app.config["ALERT_REPORTS_EXECUTE_AS"],
+#             model=self._report_schedule,
+#         )
+        user = security_manager.find_user("admin")
+        logger.debug("User here", user)
+        window_width, window_height = app.config["WEBDRIVER_WINDOW"]["dashboard"]
+        window_size = (
+            self._report_schedule.custom_width or window_width,
+            self._report_schedule.custom_height or window_height,
+        )
+        screenshot = DashboardScreenshot(
+            url,
+            "",
+            window_size=window_size,
+            thumb_size=app.config["WEBDRIVER_WINDOW"]["dashboard"],
+        )
+        images = screenshot.get_tabs_screenshots(user=user)
+
+        return images
+
     def _get_pdf(self) -> bytes:
         """
         Get chart or dashboard pdf

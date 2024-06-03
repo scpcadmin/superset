@@ -38,6 +38,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from superset import feature_flag_manager
 from superset.extensions import machine_auth_provider_factory
 from superset.utils.retries import retry_call
+import time
 
 WindowSize = tuple[int, int]
 logger = logging.getLogger(__name__)
@@ -438,3 +439,78 @@ class WebDriverSelenium(WebDriverProxy):
         finally:
             self.destroy(driver, current_app.config["SCREENSHOT_SELENIUM_RETRIES"])
         return img
+
+    def get_screenshots_for_tabs(self, url: str, element_name: str, user: User) -> bytes | None:
+        driver = self.auth(user)
+        driver.set_window_size(1920, 1080)
+        driver.get("http://localhost:8088/superset/dashboard/11/?native_filters_key=EEkCJEmnFNeT-pUEKhHMJNstQJMohZRoC-NdNqYiZykUX5zw8xP8seIZ3Lk5lQDk")
+        screenshots: List[bytes] = []
+
+        selenium_headstart = current_app.config["SCREENSHOT_SELENIUM_HEADSTART"]
+        logger.debug("Sleeping for %i seconds", selenium_headstart)
+        sleep(selenium_headstart)
+
+
+        try:
+            # Wait for the presence of the dashboard container element
+            dashboard_container = WebDriverWait(driver, self._screenshot_locate_wait).until(
+                EC.presence_of_element_located((By.CLASS_NAME, "dashboard"))
+            )
+
+            screenshot = dashboard_container.screenshot_as_png
+            screenshots.append(screenshot)
+
+            # Find all tabs in the dashboard container
+#             tabs = dashboard_container.find_elements(By.CLASS_NAME, 'ant-tabs-tab')
+#             logger.debug("Tabs here", tabs)
+#             for tab in tabs:
+#                 tab.click()  # Switch to the tab
+#
+#                 try:
+#
+#                     # Wait for loading element of charts to be gone
+#                     WebDriverWait(driver, self._screenshot_load_wait).until_not(
+#                         EC.presence_of_all_elements_located((By.CLASS_NAME, "loading"))
+#                     )
+#
+#                     selenium_animation_wait = current_app.config["SCREENSHOT_SELENIUM_ANIMATION_WAIT"]
+#                     logger.debug("Wait %i seconds for chart animation", selenium_animation_wait)
+#                     sleep(selenium_animation_wait)
+#
+#                     logger.debug(
+#                         "Taking a PNG screenshot of tab %s at url %s as user %s",
+#                         tab.text,
+#                         url,
+#                         user.username,
+#                     )
+#
+#                     if current_app.config["SCREENSHOT_REPLACE_UNEXPECTED_ERRORS"]:
+#                         unexpected_errors = WebDriverSelenium.find_unexpected_errors(driver)
+#                         if unexpected_errors:
+#                             logger.warning(
+#                                 "%i errors found in the screenshot. URL: %s. Errors are: %s",
+#                                 len(unexpected_errors),
+#                                 url,
+#                                 unexpected_errors,
+#                             )
+#
+#                     screenshot = dashboard_container.screenshot_as_png
+#                     screenshots.append(screenshot)
+#                 except TimeoutException:
+#                     logger.exception(
+#                         "Selenium timed out waiting for charts to load on tab %s at url %s", tab.text, url
+#                     )
+#                 except StaleElementReferenceException:
+#                     logger.exception(
+#                         "Selenium got a stale element while requesting url %s", url,
+#                     )
+#                 except WebDriverException:
+#                     logger.exception(
+#                         "Encountered an unexpected error when requesting url %s", url
+#                     )
+
+        finally:
+            self.destroy(driver, current_app.config["SCREENSHOT_SELENIUM_RETRIES"])
+
+        logger.debug("Screenshots here", screenshots)
+        return screenshots

@@ -348,7 +348,7 @@ PUBLIC_ROLE_LIKE: str | None = 'Public'
 # Babel config for translations
 # ---------------------------------------------------
 # Setup default language
-BABEL_DEFAULT_LOCALE = "en"
+BABEL_DEFAULT_LOCALE = "uk"
 # Your application default translation path
 BABEL_DEFAULT_FOLDER = "superset/translations"
 # The allowed translation for your app
@@ -371,7 +371,10 @@ LANGUAGES = {
 }
 # Turning off i18n by default as translation in most languages are
 # incomplete and not well maintained.
-LANGUAGES = {}
+LANGUAGES = {
+    "en": {"flag": "us", "name": "English"},
+    "uk": {"flag": "ua", "name": "Ukrainian"}
+}
 
 
 # Override the default d3 locale format
@@ -434,7 +437,7 @@ DEFAULT_FEATURE_FLAGS: dict[str, bool] = {
     "GLOBAL_ASYNC_QUERIES": False,
     "EMBEDDED_SUPERSET": False,
     # Enables Alerts and reports new implementation
-    "ALERT_REPORTS": False,
+    "ALERT_REPORTS": True,
     "DASHBOARD_RBAC": True,
     "ENABLE_ADVANCED_DATA_TYPES": False,
     # Enabling ALERTS_ATTACH_REPORTS, the system sends email and slack message

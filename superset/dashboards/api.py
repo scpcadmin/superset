@@ -85,6 +85,8 @@ from superset.tasks.thumbnails import cache_dashboard_thumbnail
 from superset.tasks.utils import get_current_user
 from superset.utils.screenshots import DashboardScreenshot
 from superset.utils.urls import get_url_path
+from superset.utils.dashboard_export import export_dashboard
+from superset.views.base import PdfResponse, generate_download_headers
 from superset.views.base_api import (
     BaseSupersetModelRestApi,
     RelatedFieldFilter,
@@ -146,6 +148,7 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         "delete_embedded",
         "thumbnail",
         "copy_dash",
+        "download_pdf"
     }
     resource_name = "dashboard"
     allow_browser_login = True
@@ -1363,3 +1366,55 @@ class DashboardRestApi(BaseSupersetModelRestApi):
                 ).timestamp(),
             },
         )
+
+    @expose("/<pk>/download-pdf/")
+    @protect()
+    @safe
+    @statsd_metrics
+    @event_logger.log_this_with_context(
+        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}"
+        f".download_pdf",
+        log_to_statsd=False,
+    )
+    def download_pdf(self, pk: int) -> Response:
+        """Download all dashboard tabs as pdf.
+        ---
+        post:
+          summary: Download all dashboard tabs as pdf
+          parameters:
+          - in: path
+            schema:
+              type: integer
+            name: pk
+          responses:
+            200:
+              description: Dashboard pdf
+              content:
+                application/pdf:
+                  schema:
+                    schema:
+                        type: string
+            401:
+              $ref: '#/components/responses/401'
+            404:
+              $ref: '#/components/responses/404'
+            500:
+              $ref: '#/components/responses/500'
+        """
+
+        pdf = export_dashboard()
+        print(pdf)
+        empty_pdf = b"%PDF-1.4\n1 0 obj\n<< >>\nendobj\n\n2 0 obj\n<< /Length 1 0 R /Filter /FlateDecode >>\nstream\nx\x9c\x01\x00\x01\x00\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\nendstream\nendobj\n\n3 0 obj\n<< /Type /Page /Parent 4 0 R /Resources 2 0 R /Contents 5 0 R >>\nendobj\n\n4 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n\n5 0 obj\n<< /Length 6 0 R >>\nstream\nq\n1 0 0 1 0 0 cm\n0 0 0 0 0 0 cm\n0 g\n0 G\n0 0 0 RG\n0 0 0 rg\n0.00 w\nBT\n/F1 1 Tf\n1 0 0 1 0 0 Tm\n12 TL\n0 g\n0 G\n0 0 0 RG\n0 0 0 rg\nET\nQ\nendstream\nendobj\n\n6 0 obj\n44\nendobj\n\n7 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>\nendobj\n\n8 0 obj\n<< /F1 7 0 R >>\nendobj\n\nxref\n0 9\n0000000000 65535 f \n0000000010 00000 n \n0000000060 00000 n \n0000000104 00000 n \n0000000174 00000 n \n0000000239 00000 n \n0000000301 00000 n \n0000000388 00000 n \n0000000489 00000 n \ntrailer\n<< /Size 9 /Root 1 0 R >>\nstartxref\n586\n%%EOF"
+        response = PdfResponse(
+            pdf, headers=generate_download_headers("pdf", "test")
+        )
+        event_info = {
+            "event_type": "data_export",
+            "exported_format": "pdf",
+        }
+        event_rep = repr(event_info)
+        logger.debug(
+            "PDF exported: %s", event_rep, extra={"superset_event": event_info}
+        )
+
+        return response
