@@ -282,9 +282,9 @@ class ResizableContainer extends React.PureComponent {
             ? minWidthMultiple * (widthStep + gutterWidth) - gutterWidth
             : undefined
         }
-        minHeight={
-          adjustableHeight ? minHeightMultiple * heightStep : undefined
-        }
+        // minHeight={
+        //   adjustableHeight ? minHeightMultiple * heightStep : undefined
+        // }
         maxWidth={
           adjustableWidth
             ? Math.max(
