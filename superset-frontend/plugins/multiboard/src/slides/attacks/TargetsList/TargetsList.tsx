@@ -45,6 +45,7 @@ const Styles = styled.div<TargetsListStylesProps>`
   .target-list button {
     background: none;
     border: none;
+    text-align: start;
   }
 
   .target-list li button:hover span,

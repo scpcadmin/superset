@@ -81,7 +81,14 @@ import { HandlebarsChartPlugin } from '@superset-ui/plugin-chart-handlebars';
 import { FilterPlugins } from 'src/constants';
 import { MultiboardTargets } from '@superset-ui/multiboard-targets';
 import { MultiboardMetrics } from '@superset-ui/multiboard-metrics';
-import { IncidentsPiePlugin, TargetsListPlugin, MetricsPlugin, TotalIncidentsBarPlugin } from '@superset-ui/multiboard';
+import {
+  IncidentsPiePlugin,
+  TargetsListPlugin,
+  MetricsPlugin,
+  TotalIncidentsBarPlugin,
+  TimelinePlugin,
+  UavSupplyBarPlugin
+} from '@superset-ui/multiboard';
 import TimeTableChartPlugin from '../TimeTable';
 
 export default class MainPreset extends Preset {
@@ -182,7 +189,11 @@ export default class MainPreset extends Preset {
         new IncidentsPiePlugin().configure({ key: 'multiboard-incidents-pie' }),
         new TargetsListPlugin().configure({ key: 'multiboard-targets-list' }),
         new MetricsPlugin().configure({ key: 'multiboard-metrics' }),
-        new TotalIncidentsBarPlugin().configure({ key: 'multiboard-total-incidents-bar' }),
+        new TotalIncidentsBarPlugin().configure({
+          key: 'multiboard-total-incidents-bar',
+        }),
+        new TimelinePlugin().configure({ key: 'multiboard-timeline' }),
+        new UavSupplyBarPlugin().configure({ key: 'multiboard-uav-supply-bar' }),
       ],
     });
   }

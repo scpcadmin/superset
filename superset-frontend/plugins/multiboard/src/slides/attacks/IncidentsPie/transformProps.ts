@@ -1,6 +1,5 @@
 import {ChartProps} from '@superset-ui/core';
 import {EChartsCoreOption} from 'echarts';
-import {Refs} from '@superset-ui/plugin-chart-echarts';
 import {AttackState, PieDataItem} from './types';
 
 const convertData = (data: AttackState[]): PieDataItem[][] =>
@@ -8,22 +7,22 @@ const convertData = (data: AttackState[]): PieDataItem[][] =>
     {
       value: item.critical,
       name: 'Критичний рівень',
-      itemStyle: { color: '#F20000' },
+      itemStyle: {color: '#F20000'},
     },
     {
       value: item.high,
       name: 'Високий рівень',
-      itemStyle: { color: '#FF7A00' },
+      itemStyle: {color: '#FF7A00'},
     },
     {
       value: item.medium,
       name: 'Середній рівень',
-      itemStyle: { color: '#5A9679' },
+      itemStyle: {color: '#5A9679'},
     },
     {
       value: item.low,
       name: 'Низький рівень',
-      itemStyle: { color: '#A0BE5A' },
+      itemStyle: {color: '#A0BE5A'},
     },
   ]);
 
@@ -44,8 +43,8 @@ const getColorByName = (data: PieDataItem[], name: string) => {
 };
 
 export default function transformProps(chartProps: ChartProps) {
-  const { width, height, formData, queriesData } = chartProps;
-  const { boldText, headerFontSize, headerText } = formData;
+  const {width, height, formData, queriesData} = chartProps;
+  const {boldText, headerFontSize, headerText} = formData;
 
   const data = queriesData[0].data as AttackState[];
   const date1 = formatDate(data[0].date_added);

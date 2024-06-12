@@ -21,10 +21,12 @@ const Styles = styled.div<BigMetricStylesProps>`
 
   .big .value {
     font-size: 56px;
+    line-height: 56px;
   }
 
   .small .value {
     font-size: 36px;
+    line-height: 36px;
   }
 
   .title {
@@ -52,9 +54,9 @@ export default function BigMetric(props: BigMetricProps) {
         <div className="header">
           <span className="value">
             <small className="text">{prefix}</small>
-            {value}
+            {value || 'Немає даних'}
           </span>
-          {title && <span className="title">{title}</span>}
+          {value && <span className="title">{title}</span>}
         </div>
         {text && <span className="text">{text}</span>}
       </div>

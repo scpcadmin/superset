@@ -5,8 +5,8 @@ import {
   TotalIncidentsBarState,
   TotalIncidentsBarStylesProps,
 } from './types';
-import Echart from '../components/Echart';
-import BigMetric from '../components/BigMetric/BigMetric';
+import BigMetric from '../../../components/BigMetric/BigMetric';
+import Echart from '../../../components/Echart';
 
 function calculateDirection(
   currentYear: number | null,
@@ -60,8 +60,6 @@ const Styles = styled.div<TotalIncidentsBarStylesProps>`
     gap: 35px;
   }
 `;
-
-function compareIncidentsAmount(totalCriticalPrevYear, totalCriticalThisYear) {}
 
 export default function TotalIncidentsBar(props: TotalIncidentsBarProps) {
   const { data, yearThis, yearPrev, height, width, chartOptions } = props;

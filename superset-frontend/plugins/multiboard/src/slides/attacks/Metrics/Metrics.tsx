@@ -1,7 +1,7 @@
 import React, {createRef} from 'react';
 import {styled} from '@superset-ui/core';
 import {MetricsProps, MetricsState, MetricsStylesProps} from './types';
-import BigMetric from '../components/BigMetric/BigMetric';
+import BigMetric from '../../../components/BigMetric/BigMetric';
 
 const Styles = styled.div<MetricsStylesProps>`
   height: ${({ height }) => height}px;

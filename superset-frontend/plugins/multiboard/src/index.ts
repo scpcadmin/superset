@@ -17,10 +17,14 @@
  * under the License.
  */
 // eslint-disable-next-line import/prefer-default-export
-export { default as IncidentsPiePlugin } from './IncidentsPie';
-export { default as TargetsListPlugin } from './TargetsList';
-export { default as MetricsPlugin } from './Metrics';
-export { default as TotalIncidentsBarPlugin } from './TotalIncidentsBar';
+export { default as IncidentsPiePlugin } from './slides/attacks/IncidentsPie';
+export { default as TargetsListPlugin } from './slides/attacks/TargetsList';
+export { default as MetricsPlugin } from './slides/attacks/Metrics';
+export { default as TotalIncidentsBarPlugin } from './slides/attacks/TotalIncidentsBar';
+
+export { default as TimelinePlugin } from './slides/timeline/Timeline';
+
+export { default as UavSupplyBarPlugin } from './slides/uav/UavSupplyBar';
 /**
  * Note: this file exports the default export from Multiboard.tsx.
  * If you want to export multiple visualization modules, you will need to
