@@ -87,7 +87,8 @@ import {
   MetricsPlugin,
   TotalIncidentsBarPlugin,
   TimelinePlugin,
-  UavSupplyBarPlugin
+  UavSupplyBarPlugin,
+  UavScheduleBarPlugin,
 } from '@superset-ui/multiboard';
 import TimeTableChartPlugin from '../TimeTable';
 
@@ -194,6 +195,7 @@ export default class MainPreset extends Preset {
         }),
         new TimelinePlugin().configure({ key: 'multiboard-timeline' }),
         new UavSupplyBarPlugin().configure({ key: 'multiboard-uav-supply-bar' }),
+        new UavScheduleBarPlugin().configure({ key: 'multiboard-uav-schedule-bar' }),
       ],
     });
   }

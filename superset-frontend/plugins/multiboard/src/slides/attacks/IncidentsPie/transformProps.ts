@@ -1,28 +1,28 @@
-import {ChartProps} from '@superset-ui/core';
-import {EChartsCoreOption} from 'echarts';
-import {AttackState, PieDataItem} from './types';
+import { ChartProps } from '@superset-ui/core';
+import { EChartsCoreOption } from 'echarts';
+import { AttackState, PieDataItem } from './types';
 
 const convertData = (data: AttackState[]): PieDataItem[][] =>
   data.map(item => [
     {
       value: item.critical,
       name: 'Критичний рівень',
-      itemStyle: {color: '#F20000'},
+      itemStyle: { color: '#F20000' },
     },
     {
       value: item.high,
       name: 'Високий рівень',
-      itemStyle: {color: '#FF7A00'},
+      itemStyle: { color: '#FF7A00' },
     },
     {
       value: item.medium,
       name: 'Середній рівень',
-      itemStyle: {color: '#5A9679'},
+      itemStyle: { color: '#5A9679' },
     },
     {
       value: item.low,
       name: 'Низький рівень',
-      itemStyle: {color: '#A0BE5A'},
+      itemStyle: { color: '#A0BE5A' },
     },
   ]);
 
@@ -35,25 +35,21 @@ const formatDate = (timestamp: number): string => {
   return `${day}.${month}.${year}`;
 };
 
-const getColorByName = (data: PieDataItem[], name: string) => {
-  // Use the find method to get the object with the matching name
-  const item = data.find(item => item.name === name);
-  // Return the color if found, otherwise return a default color
-  return item ? item.itemStyle.color : '#000000';
-};
-
 export default function transformProps(chartProps: ChartProps) {
-  const {width, height, formData, queriesData} = chartProps;
-  const {boldText, headerFontSize, headerText} = formData;
+  const { width, height, formData, queriesData } = chartProps;
+  const { boldText, headerFontSize, headerText } = formData;
 
   const data = queriesData[0].data as AttackState[];
   const date1 = formatDate(data[0].date_added);
   const date2 = formatDate(data[1].date_added);
 
+  const thisYear = new Date(data[1].date_added).getFullYear();
+
   const incidentData = convertData(data);
 
   const total1 = incidentData[0].reduce((acc, curr) => acc + curr.value, 0);
   const total2 = incidentData[1].reduce((acc, curr) => acc + curr.value, 0);
+  const diff = total1 - total2;
 
   const chartOptions: EChartsCoreOption = {
     grid: {
@@ -66,7 +62,7 @@ export default function transformProps(chartProps: ChartProps) {
       type: 'scroll',
       orient: 'horizontal',
       bottom: 0,
-      left: 'center',
+      left: -30,
       itemGap: 16,
       icon: 'none',
       formatter(name) {
@@ -80,9 +76,7 @@ export default function transformProps(chartProps: ChartProps) {
             width: 15,
             height: 15,
             borderRadius: 50,
-            backgroundColor(params) {
-              return getColorByName(incidentData[0], params.name);
-            },
+            backgroundColor: params => params,
           },
           name: {
             fontSize: 16,
@@ -178,23 +172,23 @@ export default function transformProps(chartProps: ChartProps) {
         radius: ['35%', '46%'],
         center: ['25%', '35%'],
         emphasis: {
-          disabled: true
+          disabled: true,
         },
         label: {
           show: true,
           position: 'center',
-          formatter: function (params) {
-            return '{value|' + date1 + '}';
+          formatter(params) {
+            return `{value|${date1}}`;
           },
           rich: {
             value: {
               fontSize: 24,
               fontWeight: 700,
-              padding: [350, 0, 0, 0]
-            }
-          }
+              padding: [350, 0, 0, 0],
+            },
+          },
         },
-        data: incidentData[0]
+        data: incidentData[0],
       },
       {
         name: `Інциденти за ${date2}`,
@@ -247,7 +241,7 @@ export default function transformProps(chartProps: ChartProps) {
         radius: ['35%', '46%'],
         center: ['75%', '35%'],
         emphasis: {
-          disabled: true
+          disabled: true,
         },
         label: {
           show: true,
@@ -277,23 +271,23 @@ export default function transformProps(chartProps: ChartProps) {
         radius: ['35%', '46%'],
         center: ['75%', '35%'],
         emphasis: {
-          disabled: true
+          disabled: true,
         },
         label: {
           show: true,
           position: 'center',
-          formatter: function (params) {
-            return '{value|' + date2 + '}';
+          formatter(params) {
+            return `{value|${date2}}`;
           },
           rich: {
             value: {
               fontSize: 24,
               fontWeight: 700,
-              padding: [350, 0, 0, 0]
-            }
-          }
+              padding: [350, 0, 0, 0],
+            },
+          },
         },
-        data: incidentData[1]
+        data: incidentData[1],
       },
     ],
   };
@@ -306,5 +300,7 @@ export default function transformProps(chartProps: ChartProps) {
     headerFontSize,
     headerText,
     chartOptions,
+    thisYear,
+    diff
   };
 }

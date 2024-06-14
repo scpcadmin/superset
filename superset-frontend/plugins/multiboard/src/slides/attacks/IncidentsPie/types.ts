@@ -41,5 +41,7 @@ export type IncidentsPieQueryFormData = QueryFormData &
 export type IncidentsPieProps = IncidentsPieStylesProps &
   IncidentsPieCustomizeProps & {
     data: TimeseriesDataRecord[];
+    thisYear: number;
+    diff: number;
     // add typing here for the props you pass in from transformProps.ts!
   };

@@ -25,6 +25,7 @@ export { default as TotalIncidentsBarPlugin } from './slides/attacks/TotalIncide
 export { default as TimelinePlugin } from './slides/timeline/Timeline';
 
 export { default as UavSupplyBarPlugin } from './slides/uav/UavSupplyBar';
+export { default as UavScheduleBarPlugin } from './slides/uav/UavScheduleBar';
 /**
  * Note: this file exports the default export from Multiboard.tsx.
  * If you want to export multiple visualization modules, you will need to

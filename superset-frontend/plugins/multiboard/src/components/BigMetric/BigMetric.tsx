@@ -1,6 +1,6 @@
-import React, { useEffect, createRef } from 'react';
-import { styled } from '@superset-ui/core';
-import { BigMetricProps, BigMetricStylesProps } from './types';
+import React from 'react';
+import {styled} from '@superset-ui/core';
+import {BigMetricProps, BigMetricStylesProps} from './types';
 
 const Styles = styled.div<BigMetricStylesProps>`
   .metric-container {
@@ -46,7 +46,7 @@ const Styles = styled.div<BigMetricStylesProps>`
 `;
 
 export default function BigMetric(props: BigMetricProps) {
-  const { title, text, value, prefix, type = 'small' } = props;
+  const {title, text, value, prefix, type = 'small'} = props;
 
   return (
     <Styles>
