@@ -79,9 +79,18 @@ import {
 import { PivotTableChartPlugin as PivotTableChartPluginV2 } from '@superset-ui/plugin-chart-pivot-table';
 import { HandlebarsChartPlugin } from '@superset-ui/plugin-chart-handlebars';
 import { FilterPlugins } from 'src/constants';
-import TimeTableChartPlugin from '../TimeTable';
 import { MultiboardTargets } from '@superset-ui/multiboard-targets';
 import { MultiboardMetrics } from '@superset-ui/multiboard-metrics';
+import {
+  IncidentsPiePlugin,
+  TargetsListPlugin,
+  MetricsPlugin,
+  TotalIncidentsBarPlugin,
+  TimelinePlugin,
+  UavSupplyBarPlugin,
+  UavScheduleBarPlugin,
+} from '@superset-ui/multiboard';
+import TimeTableChartPlugin from '../TimeTable';
 
 export default class MainPreset extends Preset {
   constructor() {
@@ -176,8 +185,17 @@ export default class MainPreset extends Preset {
         new HandlebarsChartPlugin().configure({ key: 'handlebars' }),
         new EchartsBubbleChartPlugin().configure({ key: 'bubble_v2' }),
         ...experimentalPlugins,
-        new MultiboardTargets().configure({ key: 'multiboard-targets' }),
-        new MultiboardMetrics().configure({ key: 'multiboard-metrics' }),
+        new MultiboardTargets().configure({ key: 'multiboard-mvp-targets' }),
+        new MultiboardMetrics().configure({ key: 'multiboard-mvp-metrics' }),
+        new IncidentsPiePlugin().configure({ key: 'multiboard-incidents-pie' }),
+        new TargetsListPlugin().configure({ key: 'multiboard-targets-list' }),
+        new MetricsPlugin().configure({ key: 'multiboard-metrics' }),
+        new TotalIncidentsBarPlugin().configure({
+          key: 'multiboard-total-incidents-bar',
+        }),
+        new TimelinePlugin().configure({ key: 'multiboard-timeline' }),
+        new UavSupplyBarPlugin().configure({ key: 'multiboard-uav-supply-bar' }),
+        new UavScheduleBarPlugin().configure({ key: 'multiboard-uav-schedule-bar' }),
       ],
     });
   }

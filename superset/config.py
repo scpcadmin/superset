@@ -568,14 +568,33 @@ COMMON_BOOTSTRAP_OVERRIDES_FUNC: Callable[
 # example code for "My custom warm to hot" color scheme
 EXTRA_CATEGORICAL_COLOR_SCHEMES = [
     {
-        "id": 'multiboardScheme',
+        "id": 'incidentsPieScheme',
         "description": 'Кольорова схема для графіку атак',
         "isDiverging": True,
         "label": 'Кольорова схема для графіку атак',
         "isDefault": False,
         "colors":
-         ['#a6a6a6', '#7f7f7f', '#f67b7f', '#fe0103']
-    }]
+         ['#F20000', '#FF7A00', '#5A9679', '#A0BE5A']
+    },
+    {
+        "id": 'totalIncidentsBarScheme',
+        "description": 'Кольорова схема для графіку порівняння кількості атак критичного та високого рівнів',
+        "isDiverging": True,
+        "label": 'Кольорова схема для графіку порівняння кількості атак критичного та високого рівнів',
+        "isDefault": False,
+        "colors":
+         ['#EFCF41', '#A0BE5A', '#1BA184']
+    },
+    {
+        "id": 'uavSupplyBarScheme',
+        "description": 'Кольорова схема для графіку переданих/законтрактованих БпЛа',
+        "isDiverging": True,
+        "label": 'Кольорова схема для графіку переданих/законтрактованих БпЛа',
+        "isDefault": False,
+        "colors":
+         ['#1BA184', '#A0BE5A', '#EFCF41']
+    },
+    ]
 
 # This is merely a default
 # EXTRA_CATEGORICAL_COLOR_SCHEMES: list[dict[str, Any]] = []
@@ -608,8 +627,27 @@ EXTRA_SEQUENTIAL_COLOR_SCHEMES =  [
         "label": 'Кольорова схема для графіку атак',
         "isDefault": False,
         "colors":
-         ['#a6a6a6', '#7f7f7f', '#f67b7f', '#fe0103']
-    }]
+         ['#F20000', '#FF7A00', '#5A9679', '#A0BE5A']
+    },
+    {
+        "id": 'totalIncidentsBarScheme',
+        "description": 'Кольорова схема для графіку порівняння кількості атак критичного та високого рівнів',
+        "isDiverging": True,
+        "label": 'Кольорова схема для графіку порівняння кількості атак критичного та високого рівнів',
+        "isDefault": False,
+        "colors":
+         ['#EFCF41', '#A0BE5A', '#1BA184']
+    },
+    {
+        "id": 'uavSupplyBarScheme',
+        "description": 'Кольорова схема для графіку переданих/законтрактованих БпЛа',
+        "isDiverging": True,
+        "label": 'Кольорова схема для графіку переданих/законтрактованих БпЛа',
+        "isDefault": False,
+        "colors":
+         ['#1BA184', '#A0BE5A', '#EFCF41']
+    },
+    ]
 
 # This is merely a default
 # EXTRA_SEQUENTIAL_COLOR_SCHEMES: list[dict[str, Any]] = []

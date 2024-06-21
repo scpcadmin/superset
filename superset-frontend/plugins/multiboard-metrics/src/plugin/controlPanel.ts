@@ -135,7 +135,7 @@ const config: ControlPanelConfig = {
       ],
     },
     {
-      label: t('Hello Controls!'),
+      label: t('Hello Control!'),
       expanded: true,
       controlSetRows: [
         [

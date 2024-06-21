@@ -61,6 +61,12 @@ export { DEFAULT_FORM_DATA as TimeseriesDefaultFormData } from './Timeseries/con
 
 export * from './types';
 
+//custom imports
+export * from './controls';
+export * from './utils/series';
+export * from './constants';
+export * from './Pie/transformProps';
+export { default as Echart } from './components/Echart';
 /**
  * Note: this file exports the default export from EchartsTimeseries.tsx.
  * If you want to export multiple visualization modules, you will need to
