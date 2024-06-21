@@ -137,7 +137,7 @@ function calculateDirection(
     return 'equal';
   }
 
-  return previousYear < currentYear ? 'down' : 'up';
+  return previousYear < currentYear ? 'up' : 'down';
 }
 
 function generateText(
