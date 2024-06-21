@@ -1,8 +1,7 @@
-import { ControlSetRow } from '@superset-ui/plugin-chart-echarts';
-import { ControlSetItem, ControlSubSectionHeader } from '@superset-ui/chart-controls';
-import { t } from '@superset-ui/core';
-import React from 'react';
-import { FONT_SIZE_OPTIONS } from '../constants';
+import {ControlSetRow} from '@superset-ui/plugin-chart-echarts';
+import {ControlSetItem} from '@superset-ui/chart-controls';
+import {t} from '@superset-ui/core';
+import {FONT_SIZE_OPTIONS} from '../constants';
 
 const titleFontSizeControl: ControlSetItem = {
   name: 'title_font_size',

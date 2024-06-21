@@ -12,6 +12,7 @@ import {
   DEFAULT_FORM_DATA,
   legendSection,
 } from '@superset-ui/plugin-chart-echarts';
+import {headerSection} from '../../../controls/headerSection';
 
 const { labelType, labelLine, showLabels, outerRadius, donut, innerRadius } =
   DEFAULT_FORM_DATA;
@@ -56,22 +57,7 @@ const config: ControlPanelConfig = {
     {
       label: t('Header Options'),
       expanded: true,
-      controlSetRows: [
-        [
-          {
-            name: 'header_text',
-            config: {
-              type: 'TextControl',
-              default: 'Кількість та критичність кіберінцидентів',
-              renderTrigger: true,
-              label: t('Header Text'),
-              description: t(
-                'The text you want to see in the header. Use {thisYear} and {prevYear} to insert the year value.',
-              ),
-            },
-          },
-        ],
-      ],
+      controlSetRows: [...headerSection],
     },
     {
       label: t('Chart Options'),

@@ -6,7 +6,7 @@ export const LABEL_MARGIN_OPTIONS: number[] = [
   15, 30, 50, 75, 100, 125, 150, 200,
 ];
 
-export const LABEL_COLOR = '#000';
+export const LABEL_COLOR = { r: 0, g: 0, b: 0, a: 1 };
 
 export const MONTH_NAMES = [
   'Січень',
