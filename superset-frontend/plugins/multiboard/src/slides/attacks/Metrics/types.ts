@@ -1,5 +1,4 @@
-import {QueryFormData, supersetTheme, TimeseriesDataRecord} from '@superset-ui/core';
-
+import {QueryFormData, TimeseriesDataRecord,} from '@superset-ui/core';
 
 export type MetricsState = {
   dateAdded: number;
@@ -12,12 +11,13 @@ export type MetricsState = {
 export interface MetricsStylesProps {
   height: number;
   width: number;
-  headerFontSize: keyof typeof supersetTheme.typography.sizes;
-  boldText: boolean;
 }
 
-interface MetricsCustomizeProps {
-  headerText: string;
+export interface MetricsCustomizeProps {
+  titleFontSize: number;
+  bigValueFontSize: number;
+  smallValueFontSize: number;
+  textFontSize: number;
 }
 
 export type MetricsQueryFormData = QueryFormData &
@@ -27,5 +27,6 @@ export type MetricsQueryFormData = QueryFormData &
 export type MetricsProps = MetricsStylesProps &
   MetricsCustomizeProps & {
   data: TimeseriesDataRecord[];
+  customizeProps: MetricsCustomizeProps;
   // add typing here for the props you pass in from transformProps.ts!
 };

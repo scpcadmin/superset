@@ -1,15 +1,11 @@
-import { ChartProps } from '@superset-ui/core';
+import { ChartProps, CategoricalColorNamespace } from '@superset-ui/core';
 import { EChartsCoreOption } from 'echarts';
-import { TimelineState } from './types';
-
-const formatDate = (timestamp: number): string => {
-  const date = new Date(timestamp);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Місяці від 0 до 11
-  const day = String(date.getDate()).padStart(2, '0');
-
-  return `${year}.${month}.${day}`;
-};
+import { getChartPadding } from '@superset-ui/plugin-chart-echarts';
+import { TimelineCustomizeProps, TimelineState } from './types';
+import { LABEL_COLOR, MONTH_NAMES } from '../../../constants';
+import { formatDate } from '../../../utils/formatters';
+import { getLegendProps } from '../../../utils/series';
+import { convertInteger } from '../../../utils/convertInteger';
 
 function isFirstOfMonth(index: number, dateString: string) {
   return new Date(dateString).getDate() === 1;
@@ -17,7 +13,22 @@ function isFirstOfMonth(index: number, dateString: string) {
 
 export default function transformProps(chartProps: ChartProps) {
   const { width, height, formData, queriesData } = chartProps;
-  const { boldText, headerFontSize, headerText } = formData;
+  const {
+    colorScheme,
+    showLegend,
+    legendMargin,
+    legendOrientation,
+    legendType,
+    xLabelFontSize,
+    xLabelMargin,
+    xLabelColor,
+    yLabelFontSize,
+    yLabelMargin,
+    yLabelColor,
+  } = formData;
+  const metricsCustomizeProps = formData as TimelineCustomizeProps;
+
+  const colorFn = CategoricalColorNamespace.getScale(colorScheme as string);
 
   const data = queriesData[0].data as TimelineState[];
 
@@ -31,50 +42,45 @@ export default function transformProps(chartProps: ChartProps) {
     highLevelAttacks.push(item.highLevelAttacks);
   });
 
+  const chartPadding = getChartPadding(
+    showLegend,
+    legendOrientation,
+    legendMargin,
+  );
+
+  function getTimelineChartSeries(
+    name: string,
+    data: any,
+    colorFn: (category: string) => string,
+  ) {
+    return [
+      {
+        name,
+        type: 'line',
+        data,
+        itemStyle: {
+          color: colorFn(name),
+        },
+        symbol(value, params) {
+          return value !== 0 ? 'circle' : 'none';
+        },
+      },
+    ];
+  }
+
   const chartOptions: EChartsCoreOption = {
     grid: {
+      ...chartPadding,
       left: '15px',
       right: '5px',
       bottom: '5%',
-      top: '90px',
       containLabel: true,
     },
     tooltip: {
       trigger: 'axis',
     },
     legend: {
-      type: 'scroll',
-      orient: 'horizontal',
-      top: 0,
-      right: 0,
-      itemGap: 16,
-      icon: 'none',
-      formatter(name) {
-        return `{symbol|}\n{name|${name}}`;
-      },
-      textStyle: {
-        rich: {
-          symbol: {
-            align: 'left',
-            verticalAlign: 'top',
-            width: 15,
-            height: 15,
-            borderRadius: 50,
-            backgroundColor: (params) => {
-              return params;
-            },
-          },
-          name: {
-            fontSize: 16,
-            fontWeight: 600,
-            lineHeight: 24,
-            opacity: 0.5,
-            align: 'left',
-            verticalAlign: 'bottom',
-            padding: [4, 0, 0, 0],
-          },
-        },
-      },
+      ...getLegendProps(showLegend, legendType, legendOrientation),
     },
     xAxis: {
       type: 'category',
@@ -95,108 +101,78 @@ export default function transformProps(chartProps: ChartProps) {
         formatter(value, index) {
           const date = new Date(value);
           const day = date.getDate();
-          const monthNames = [
-            'Січень',
-            'Лютий',
-            'Березень',
-            'Квітень',
-            'Травень',
-            'Червень',
-            'Липень',
-            'Серпень',
-            'Вересень',
-            'Жовтень',
-            'Листопад',
-            'Грудень',
-          ];
-          const month = monthNames[date.getMonth()];
-          const val = chartOptions.series[0].data[index];
-          const prev = chartOptions.series[0].data[index - 1];
-          const next = chartOptions.series[0].data[index + 1];
+          const month = MONTH_NAMES[date.getMonth()];
+
+          const data = chartOptions.series[0].data;
+          const val = data[index];
+          const prev = data[index - 1];
+          const next = data[index + 1];
           let str = '';
           if (
             val === 0 &&
             (prev === undefined || prev === 0) &&
             (next === undefined || next === 0)
           ) {
-            str += `{a|${day}}`;
+            str += `{emptyDay|${day}}`;
           } else {
-            str += `{b|${day}}`;
+            str += `{filledDay|${day}}`;
           }
           if (prev === undefined) {
-            str += `\n` + `{c|${month}}`;
+            str += `\n{monthRight|${month}}`;
           } else if (day === 1) {
-            str += `\n` + `{d|${month}}`;
+            str += `\n{monthLeft|${month}}`;
           }
           return str;
         },
         rich: {
-          a: {
-            color: '#000000',
-            padding: [15, 0, 0, 0],
-            fontSize: 10,
+          emptyDay: {
+            color: LABEL_COLOR,
+            padding: [convertInteger(xLabelMargin), 0, 0, 0],
+            fontSize: xLabelFontSize,
             opacity: 0.5,
           },
-          b: {
-            color: '#FF0000',
-            padding: [15, 0, 0, 0],
-            fontSize: 10,
+          filledDay: {
+            color: `rgba(${xLabelColor.r}, ${xLabelColor.g}, ${xLabelColor.b}, ${xLabelColor.a})`,
+            padding: [convertInteger(xLabelMargin), 0, 0, 0],
+            fontSize: xLabelFontSize,
           },
-          c: {
-            color: '#000000',
-            padding: [8, 0, 0, 70],
-            fontSize: 16,
+          monthRight: {
+            color: LABEL_COLOR,
+            padding: [convertInteger(xLabelMargin) - 7, 0, 0, 70],
+            fontSize: xLabelFontSize * 1.6,
             fontFamily: 'eUkraine-Medium',
           },
-          d: {
-            color: '#000000',
-            fontSize: 16,
+          monthLeft: {
+            color: LABEL_COLOR,
+            fontSize: xLabelFontSize * 1.6,
             fontFamily: 'eUkraine-Medium',
-            padding: [8, 60, 0, 0],
+            padding: [convertInteger(xLabelMargin) - 7, 60, 0, 0],
           },
         },
       },
     },
     yAxis: {
       axisLabel: {
-        color: '#000',
+        color: `rgba(${yLabelColor.r}, ${yLabelColor.g}, ${yLabelColor.b}, ${yLabelColor.a})`,
         fontWeight: 'bold',
-        fontSize: 14,
-        padding: [0, 15, 0, 0],
+        fontSize: yLabelFontSize,
+        padding: [0, convertInteger(yLabelMargin), 0, 0],
       },
     },
     series: [
-      {
-        name: 'Критичний рівень',
-        type: 'line',
-        data: criticalLevelAttacks,
-        itemStyle: {
-          color: '#FF0000', // колір точок
-        },
-        symbol(value, params) {
-          return value !== 0 ? 'circle' : 'none';
-        },
-      },
-      {
-        name: 'Високий рівень',
-        type: 'line',
-        data: highLevelAttacks,
-        itemStyle: {
-          color: '#FF7A00', // колір точок
-        },
-        symbol(value, params) {
-          return value !== 0 ? 'circle' : 'none';
-        },
-      },
+      ...getTimelineChartSeries(
+        'Критичний рівень',
+        criticalLevelAttacks,
+        colorFn,
+      ),
+      ...getTimelineChartSeries('Високий рівень', highLevelAttacks, colorFn),
     ],
   };
 
   return {
     width,
     height,
-    boldText,
-    headerFontSize,
-    headerText,
     chartOptions,
+    metricsCustomizeProps,
   };
 }

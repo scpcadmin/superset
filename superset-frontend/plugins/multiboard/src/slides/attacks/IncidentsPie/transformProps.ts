@@ -1,55 +1,184 @@
-import { ChartProps } from '@superset-ui/core';
-import { EChartsCoreOption } from 'echarts';
-import { AttackState, PieDataItem } from './types';
+import {CategoricalColorNamespace, ChartProps, getTimeFormatter, getValueFormatter} from '@superset-ui/core';
+import {EChartsCoreOption} from 'echarts';
+import {formatPieLabel, getChartPadding,} from '@superset-ui/plugin-chart-echarts';
+import {CallbackDataParams} from 'echarts/types/src/util/types';
+import {AttackState, PieDataItem} from './types';
+import {getLegendProps} from '../../../utils/series';
 
-const convertData = (data: AttackState[]): PieDataItem[][] =>
-  data.map(item => [
-    {
-      value: item.critical,
-      name: 'Критичний рівень',
-      itemStyle: { color: '#F20000' },
-    },
-    {
-      value: item.high,
-      name: 'Високий рівень',
-      itemStyle: { color: '#FF7A00' },
-    },
-    {
-      value: item.medium,
-      name: 'Середній рівень',
-      itemStyle: { color: '#5A9679' },
-    },
-    {
-      value: item.low,
-      name: 'Низький рівень',
-      itemStyle: { color: '#A0BE5A' },
-    },
-  ]);
+const convertData = (
+  data: AttackState[],
+  colorFn: (category: string) => string,
+): PieDataItem[][] => {
+  const categories = [
+    {name: 'Критичний рівень', key: 'critical'},
+    {name: 'Високий рівень', key: 'high'},
+    {name: 'Середній рівень', key: 'medium'},
+    {name: 'Низький рівень', key: 'low'},
+  ];
 
-const formatDate = (timestamp: number): string => {
-  const date = new Date(timestamp);
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, '0'); // Місяці від 0 до 11
-  const day = String(date.getDate()).padStart(2, '0');
-
-  return `${day}.${month}.${year}`;
+  return data.map(item =>
+    categories.map(category => ({
+      value: item[category.key],
+      name: category.name,
+      itemStyle: {color: colorFn(category.name)},
+    })),
+  );
 };
 
 export default function transformProps(chartProps: ChartProps) {
-  const { width, height, formData, queriesData } = chartProps;
-  const { boldText, headerFontSize, headerText } = formData;
+  const {width, height, formData, queriesData} = chartProps;
+  const {
+    headerText,
+    colorScheme,
+    showLegend,
+    legendMargin,
+    legendOrientation,
+    legendType,
+    labelType,
+    dateLabelFormat,
+    showLabels,
+    labelLine,
+    showTotal,
+    showDate,
+    innerRadius,
+    donut,
+    outerRadius,
+  } = formData;
+
+  const colorFn = CategoricalColorNamespace.getScale(colorScheme as string);
+
+  const thisYear = new Date(queriesData[0].to_dttm).getFullYear();
 
   const data = queriesData[0].data as AttackState[];
-  const date1 = formatDate(data[0].date_added);
-  const date2 = formatDate(data[1].date_added);
+  const incidentData = convertData(data, colorFn);
+  // @ts-ignore
+  const numberFormatter = getValueFormatter();
+  const timeFormatter = getTimeFormatter(dateLabelFormat);
+  const radius = [`${donut ? innerRadius : 0}%`, `${outerRadius}%`];
 
-  const thisYear = new Date(data[1].date_added).getFullYear();
+  const chartPadding = getChartPadding(
+    showLegend,
+    legendOrientation,
+    legendMargin,
+  );
 
-  const incidentData = convertData(data);
+  const labelFormatter = (params: CallbackDataParams) =>
+    formatPieLabel({
+      params,
+      numberFormatter,
+      labelType,
+    });
 
-  const total1 = incidentData[0].reduce((acc, curr) => acc + curr.value, 0);
-  const total2 = incidentData[1].reduce((acc, curr) => acc + curr.value, 0);
-  const diff = total1 - total2;
+  function getPieChartSeries(
+    timestamp: number,
+    data: any,
+    radius: any,
+    center: any,
+  ) {
+    const date = timeFormatter(timestamp);
+    const total = data.reduce(
+      (acc: any, curr: { value: any }) => acc + curr.value,
+      0,
+    );
+
+    return [
+      {
+        name: `Інциденти за ${date}`,
+        type: 'pie',
+        ...chartPadding,
+        radius,
+        center,
+        avoidLabelOverlap: true,
+        label: {
+          show: showLabels,
+          position: 'outside',
+          formatter(params: any) {
+            return `{${params.dataIndex}|${labelFormatter(params)}}`;
+          },
+          rich: {
+            0: {
+              fontSize: 12,
+              lineHeight: 15,
+              color: data[0].itemStyle.color,
+              fontWeight: 700,
+            },
+            1: {
+              fontSize: 12,
+              lineHeight: 15,
+              color: data[1].itemStyle.color,
+              fontWeight: 700,
+            },
+            2: {
+              fontSize: 12,
+              lineHeight: 15,
+              color: data[2].itemStyle.color,
+              fontWeight: 700,
+            },
+            3: {
+              fontSize: 12,
+              lineHeight: 15,
+              color: data[3].itemStyle.color,
+              fontWeight: 700,
+            },
+          },
+        },
+        labelLine: labelLine ? {show: true} : {show: false},
+        data,
+      },
+      showTotal && {
+        type: 'pie',
+        ...chartPadding,
+        radius,
+        center,
+        emphasis: {
+          disabled: true,
+        },
+        label: {
+          show: true,
+          position: 'center',
+          formatter() {
+            return `{total|всього}\n{value|${total}}`;
+          },
+          rich: {
+            total: {
+              fontSize: 12,
+              fontWeight: 400,
+              opacity: 0.7,
+            },
+            value: {
+              fontSize: 28,
+              fontWeight: 700,
+            },
+          },
+        },
+        data,
+      },
+      showDate && {
+        type: 'pie',
+        ...chartPadding,
+        radius,
+        center,
+        emphasis: {
+          disabled: true,
+        },
+        label: {
+          show: true,
+          position: 'center',
+          formatter() {
+            return `{value|${date}}`;
+          },
+          rich: {
+            value: {
+              fontSize: 24,
+              fontWeight: 700,
+              padding: [height - 80, 0, 0, 0],
+            },
+          },
+        },
+        data,
+      },
+    ];
+  }
 
   const chartOptions: EChartsCoreOption = {
     grid: {
@@ -59,248 +188,26 @@ export default function transformProps(chartProps: ChartProps) {
       trigger: 'item',
     },
     legend: {
-      type: 'scroll',
-      orient: 'horizontal',
-      bottom: 0,
-      left: -30,
-      itemGap: 16,
-      icon: 'none',
-      formatter(name) {
-        return `{symbol|}\n{name|${name}}`;
-      },
-      textStyle: {
-        rich: {
-          symbol: {
-            align: 'left',
-            verticalAlign: 'top',
-            width: 15,
-            height: 15,
-            borderRadius: 50,
-            backgroundColor: params => params,
-          },
-          name: {
-            fontSize: 16,
-            fontWeight: 600,
-            lineHeight: 24,
-            opacity: 0.5,
-            align: 'left',
-            verticalAlign: 'bottom',
-            padding: [4, 0, 0, 0],
-          },
-        },
-      },
+      ...getLegendProps(showLegend, legendType, legendOrientation),
     },
     series: [
-      {
-        name: `Інциденти за ${date1}`,
-        type: 'pie',
-        radius: ['35%', '46%'],
-        center: ['25%', '35%'],
-        avoidLabelOverlap: false,
-        label: {
-          show: true,
-          position: 'outside',
-          formatter(params: any) {
-            return `{${params.dataIndex}|${params.percent}% (${params.value})}`;
-          },
-          rich: {
-            0: {
-              fontSize: 12,
-              lineHeight: 15,
-              color: incidentData[0][0].itemStyle.color,
-              fontWeight: 700,
-            },
-            1: {
-              fontSize: 12,
-              lineHeight: 15,
-              color: incidentData[0][1].itemStyle.color,
-              fontWeight: 700,
-            },
-            2: {
-              fontSize: 12,
-              lineHeight: 15,
-              color: incidentData[0][2].itemStyle.color,
-              fontWeight: 700,
-            },
-            3: {
-              fontSize: 12,
-              lineHeight: 15,
-              color: incidentData[0][3].itemStyle.color,
-              fontWeight: 700,
-            },
-          },
-        },
-        labelLine: {
-          show: true,
-          length: 10,
-          length2: 0,
-        },
-        data: incidentData[0],
-      },
-      {
-        type: 'pie',
-        radius: ['35%', '46%'],
-        center: ['25%', '35%'],
-        emphasis: {
-          disabled: true,
-        },
-        label: {
-          show: true,
-          position: 'center',
-          formatter(params: any) {
-            const totalText = `{total|всього}\n{value|${total1}}`;
-            return totalText;
-          },
-          rich: {
-            total: {
-              fontSize: 12,
-              fontWeight: 400,
-              color: '#000',
-              opacity: 0.7,
-            },
-            value: {
-              fontSize: 28,
-              fontWeight: 700,
-              color: '#000',
-            },
-          },
-        },
-        data: incidentData[0],
-      },
-      {
-        type: 'pie',
-        radius: ['35%', '46%'],
-        center: ['25%', '35%'],
-        emphasis: {
-          disabled: true,
-        },
-        label: {
-          show: true,
-          position: 'center',
-          formatter(params) {
-            return `{value|${date1}}`;
-          },
-          rich: {
-            value: {
-              fontSize: 24,
-              fontWeight: 700,
-              padding: [350, 0, 0, 0],
-            },
-          },
-        },
-        data: incidentData[0],
-      },
-      {
-        name: `Інциденти за ${date2}`,
-        type: 'pie',
-        radius: ['35%', '46%'],
-        center: ['75%', '35%'],
-        avoidLabelOverlap: false,
-        label: {
-          show: true,
-          position: 'outside',
-          formatter(params: any) {
-            return `{${params.dataIndex}|${params.percent}% (${params.value})}`;
-          },
-          rich: {
-            0: {
-              fontSize: 12,
-              lineHeight: 15,
-              color: incidentData[1][0].itemStyle.color,
-              fontWeight: 700,
-            },
-            1: {
-              fontSize: 12,
-              lineHeight: 15,
-              color: incidentData[1][1].itemStyle.color,
-              fontWeight: 700,
-            },
-            2: {
-              fontSize: 12,
-              lineHeight: 15,
-              color: incidentData[1][2].itemStyle.color,
-              fontWeight: 700,
-            },
-            3: {
-              fontSize: 12,
-              lineHeight: 15,
-              color: incidentData[1][3].itemStyle.color,
-              fontWeight: 700,
-            },
-          },
-        },
-        labelLine: {
-          show: true,
-          length: 10,
-          length2: 0,
-        },
-        data: incidentData[1],
-      },
-      {
-        type: 'pie',
-        radius: ['35%', '46%'],
-        center: ['75%', '35%'],
-        emphasis: {
-          disabled: true,
-        },
-        label: {
-          show: true,
-          position: 'center',
-          formatter(params: any) {
-            const totalText = `{total|всього}\n{value|${total2}}`;
-            return totalText;
-          },
-          rich: {
-            total: {
-              fontSize: 12,
-              fontWeight: 400,
-              color: '#000',
-              opacity: 0.7,
-            },
-            value: {
-              fontSize: 28,
-              fontWeight: 700,
-              color: '#000',
-            },
-          },
-        },
-        data: incidentData[1],
-      },
-      {
-        type: 'pie',
-        radius: ['35%', '46%'],
-        center: ['75%', '35%'],
-        emphasis: {
-          disabled: true,
-        },
-        label: {
-          show: true,
-          position: 'center',
-          formatter(params) {
-            return `{value|${date2}}`;
-          },
-          rich: {
-            value: {
-              fontSize: 24,
-              fontWeight: 700,
-              padding: [350, 0, 0, 0],
-            },
-          },
-        },
-        data: incidentData[1],
-      },
+      ...getPieChartSeries(data[0].date_added, incidentData[0], radius, [
+        '25%',
+        '35%',
+      ]),
+      ...getPieChartSeries(data[1].date_added, incidentData[1], radius, [
+        '75%',
+        '35%',
+      ]),
     ],
   };
 
   return {
+    headerText,
     width,
     height,
     data,
-    boldText,
-    headerFontSize,
-    headerText,
     chartOptions,
     thisYear,
-    diff
   };
 }

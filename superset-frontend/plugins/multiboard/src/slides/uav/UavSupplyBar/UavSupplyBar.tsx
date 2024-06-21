@@ -1,12 +1,12 @@
-import React, {createRef} from 'react';
-import {styled} from '@superset-ui/core';
-import {UavSupplyBarProps, UavSupplyBarStylesProps,} from './types';
+import React, { createRef } from 'react';
+import { styled } from '@superset-ui/core';
+import { Echart } from '@superset-ui/plugin-chart-echarts';
+import { UavSupplyBarProps, UavSupplyBarStylesProps } from './types';
 import BigMetric from '../../../components/BigMetric/BigMetric';
-import Echart from '../../../components/Echart';
 
 const Styles = styled.div<UavSupplyBarStylesProps>`
-  height: ${({height}) => height}px;
-  width: ${({width}) => width}px;
+  height: ${({ height }) => height}px;
+  width: ${({ width }) => width}px;
   display: flex;
   flex-direction: column;
 
@@ -19,29 +19,26 @@ const Styles = styled.div<UavSupplyBarStylesProps>`
 `;
 
 export default function UavSupplyBar(props: UavSupplyBarProps) {
-  const {data, height, width, chartOptions} = props;
+  const { data, height, width, chartOptions, metricsCustomizeProps } = props;
   const rootElem = createRef<HTMLDivElement>();
-
 
   return (
     <Styles ref={rootElem} height={height} width={width}>
       <div className="metrics">
         <BigMetric
           value={60000}
-          text={`Всього передано`}
+          text="Всього передано"
           type="small"
+          customizeProps={metricsCustomizeProps}
         />
         <BigMetric
           value={60000}
-          text={`Всього законтрактовано`}
+          text="Всього законтрактовано"
           type="small"
+          customizeProps={metricsCustomizeProps}
         />
       </div>
-      <Echart
-        height={height - 62}
-        width={width}
-        echartOptions={chartOptions}
-      />
+      <Echart height={height - 62} width={width} echartOptions={chartOptions} />
     </Styles>
   );
 }

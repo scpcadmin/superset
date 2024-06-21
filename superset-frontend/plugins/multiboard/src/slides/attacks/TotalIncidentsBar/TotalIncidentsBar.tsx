@@ -6,7 +6,8 @@ import {
   TotalIncidentsBarStylesProps,
 } from './types';
 import BigMetric from '../../../components/BigMetric/BigMetric';
-import Echart from '../../../components/Echart';
+import { Echart } from '@superset-ui/plugin-chart-echarts';
+
 
 function calculateDirection(
   currentYear: number | null,
@@ -62,11 +63,10 @@ const Styles = styled.div<TotalIncidentsBarStylesProps>`
 `;
 
 export default function TotalIncidentsBar(props: TotalIncidentsBarProps) {
-  const { data, yearThis, yearPrev, height, width, chartOptions } = props;
+  const { data, yearThis, yearPrev, height, width, customizeProps, chartOptions } = props;
   const rootElem = createRef<HTMLDivElement>();
 
   const {
-    dateAdded,
     totalPrevYear,
     totalCriticalPrevYear,
     totalCriticalThisYear,
@@ -89,6 +89,7 @@ export default function TotalIncidentsBar(props: TotalIncidentsBarProps) {
           value={totalPrevYear}
           text={`Інцидентів у ${yearPrev}`}
           type="small"
+          customizeProps={customizeProps}
         />
         <BigMetric
           value={
@@ -105,6 +106,7 @@ export default function TotalIncidentsBar(props: TotalIncidentsBarProps) {
           text={generateText(direction, yearThis, yearPrev)}
           prefix="на&nbsp;"
           type="small"
+          customizeProps={customizeProps}
         />
       </div>
     </Styles>

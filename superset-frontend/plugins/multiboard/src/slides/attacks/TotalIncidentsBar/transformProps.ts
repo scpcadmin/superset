@@ -1,10 +1,25 @@
-import { ChartProps } from '@superset-ui/core';
+import { CategoricalColorNamespace, ChartProps } from '@superset-ui/core';
 import { EChartsCoreOption } from 'echarts';
-import { TotalIncidentsBarState } from './types';
+import {
+  TotalIncidentsBarCustomizeProps,
+  TotalIncidentsBarState,
+} from './types';
+import {convertInteger} from '../../../utils/convertInteger';
 
 export default function transformProps(chartProps: ChartProps) {
   const { width, height, formData, queriesData } = chartProps;
-  const { boldText, headerFontSize, headerText } = formData;
+  const {
+    colorScheme,
+    xLabelFontSize,
+    xLabelMargin,
+    xLabelColor,
+    yLabelFontSize,
+    yLabelMargin,
+    yLabelColor,
+  } = formData;
+  const customizeProps = formData as TotalIncidentsBarCustomizeProps;
+
+  const colorFn = CategoricalColorNamespace.getScale(colorScheme as string);
 
   const data = queriesData[0].data['0'] as TotalIncidentsBarState;
   const testData = {
@@ -21,16 +36,14 @@ export default function transformProps(chartProps: ChartProps) {
     {
       value: testData.totalCriticalPrevYear,
       name: yearPrev.toString(),
-      itemStyle: { color: '#EFCF41' },
+      itemStyle: { color: colorFn(yearPrev.toString()) },
     },
     {
       value: testData.totalCriticalThisYear,
       name: yearThis.toString(),
-      itemStyle: { color: '#A0BE5A' },
+      itemStyle: { color: colorFn(yearThis.toString()) },
     },
   ];
-
-  console.log('formData via TotalIncidentsBarState.ts', barData);
 
   const chartOptions: EChartsCoreOption = {
     grid: {
@@ -46,10 +59,10 @@ export default function transformProps(chartProps: ChartProps) {
       type: 'category',
       data: barData.map(item => item.name),
       axisLabel: {
-        color: '#000',
+        color: `rgba(${xLabelColor.r}, ${xLabelColor.g}, ${xLabelColor.b}, ${xLabelColor.a})`,
         fontWeight: 'bold',
-        fontSize: 10,
-        padding: [33, 0, 0, 0],
+        fontSize: xLabelFontSize,
+        padding: [convertInteger(xLabelMargin), 0, 0, 0],
       },
       axisTick: {
         show: false,
@@ -58,10 +71,10 @@ export default function transformProps(chartProps: ChartProps) {
     yAxis: {
       type: 'value',
       axisLabel: {
-        color: '#000',
+        color: `rgba(${yLabelColor.r}, ${yLabelColor.g}, ${yLabelColor.b}, ${yLabelColor.a})`,
         fontWeight: 'bold',
-        fontSize: 10,
-        padding: [0, 30, 0, 0],
+        fontSize: yLabelFontSize,
+        padding: [0, convertInteger(yLabelMargin), 0, 0],
       },
     },
     series: [
@@ -79,9 +92,7 @@ export default function transformProps(chartProps: ChartProps) {
     yearThis,
     yearPrev,
     // and now your control data, manipulated as needed, and passed through as props!
-    boldText,
-    headerFontSize,
-    headerText,
+    customizeProps,
     chartOptions,
   };
 }

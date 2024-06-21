@@ -1,7 +1,7 @@
 import React, { createRef } from 'react';
 import { styled } from '@superset-ui/core';
+import { Echart } from '@superset-ui/plugin-chart-echarts';
 import { UavScheduleBarProps, UavScheduleBarStylesProps } from './types';
-import Echart from '../../../components/Echart';
 import ChartHeader from '../../../components/ChartHeader/ChartHeader';
 
 const Styles = styled.div<UavScheduleBarStylesProps>`
@@ -12,12 +12,24 @@ const Styles = styled.div<UavScheduleBarStylesProps>`
 `;
 
 export default function UavScheduleBar(props: UavScheduleBarProps) {
-  const { data, height, width, chartOptions, year } = props;
+  const {
+    headerText,
+    headerFontSize,
+    data,
+    height,
+    width,
+    chartOptions,
+    thisYear,
+  } = props;
   const rootElem = createRef<HTMLDivElement>();
+
+  const headerTextFormatted = headerText
+    .replace('{thisYear}', String(thisYear))
+    .replace('{prevYear}', String(thisYear - 1));
 
   return (
     <Styles ref={rootElem} height={height} width={width}>
-      <ChartHeader title={`Графік видачі законтрактованх БпЛА ${year && `на ${year}`}`} />
+      <ChartHeader title={headerTextFormatted} fontSize={headerFontSize} />
       <Echart height={height - 62} width={width} echartOptions={chartOptions} />
     </Styles>
   );

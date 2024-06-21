@@ -1,6 +1,10 @@
 import React, { createRef, useState } from 'react';
 import { styled } from '@superset-ui/core';
-import {TargetsListProps, TargetsListStylesProps, TargetsListStylesProps} from './types';
+import {
+  TargetsListProps,
+  TargetsListStylesProps,
+} from './types';
+import ChartHeader from '../../../components/ChartHeader/ChartHeader';
 
 const Styles = styled.div<TargetsListStylesProps>`
   height: ${({ height }) => height}px;
@@ -64,7 +68,8 @@ const Styles = styled.div<TargetsListStylesProps>`
     text-align: start;
   }
 
-  h1, .description h3 {
+  h1,
+  .description h3 {
     margin: 0;
     padding-bottom: 8px;
     overflow: hidden;
@@ -85,36 +90,46 @@ const Styles = styled.div<TargetsListStylesProps>`
 
   /* total width */
   .scrollbar::-webkit-scrollbar {
-    background-color:#fff;
-    width:16px
+    background-color: #fff;
+    width: 16px;
   }
 
   /* background of the scrollbar except button or resizer */
   .scrollbar::-webkit-scrollbar-track {
-    background-color:#fff;
-    border-radius:16px;
+    background-color: #fff;
+    border-radius: 16px;
   }
   .scrollbar::-webkit-scrollbar-track:hover {
-    background-color:#f4f4f4
+    background-color: #f4f4f4;
   }
 
   /* scrollbar itself */
   .scrollbar::-webkit-scrollbar-thumb {
-    background-color:#babac0;
-    border-radius:16px;
-    border:5px solid #fff
+    background-color: #babac0;
+    border-radius: 16px;
+    border: 5px solid #fff;
   }
   .scrollbar::-webkit-scrollbar-thumb:hover {
-    background-color:#a0a0a5;
-    border:4px solid #f4f4f4
+    background-color: #a0a0a5;
+    border: 4px solid #f4f4f4;
   }
 
   /* set button(top and bottom of the scrollbar) */
-  .scrollbar::-webkit-scrollbar-button {display:none}
+  .scrollbar::-webkit-scrollbar-button {
+    display: none;
+  }
 `;
 
 export default function TargetsList(props: TargetsListProps) {
-  const { data, height, width } = props;
+  const {
+    data,
+    headerText,
+    headerFontSize,
+    subheaderText,
+    subheaderFontSize,
+    height,
+    width,
+  } = props;
   const defaultIndex = data.findIndex(item => item.should_display_as_default);
   const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(
     defaultIndex,
@@ -125,13 +140,11 @@ export default function TargetsList(props: TargetsListProps) {
   return (
     <Styles ref={rootElem} height={height} width={width}>
       <div className="targets">
-        <h1>Цілі</h1>
+        <ChartHeader title={headerText} fontSize={headerFontSize} />
         <div className="target-list-container scrollbar">
           <ol className="target-list">
             {data.map((item, index) => (
-              <li
-                key={index}
-              >
+              <li key={index}>
                 <button
                   type="button"
                   className={index === selectedItemIndex ? 'selected' : ''}
@@ -144,11 +157,11 @@ export default function TargetsList(props: TargetsListProps) {
           </ol>
         </div>
         <div className="description">
-          <h3>Опис події</h3>
+          <ChartHeader title={subheaderText} fontSize={subheaderFontSize} />
           <p>
             {selectedItemIndex !== null ? (
               <>
-                {data[selectedItemIndex].organisation_name} -
+                {data[selectedItemIndex].organisation_name} - <br/>
                 {data[selectedItemIndex].description}
               </>
             ) : (
@@ -156,7 +169,7 @@ export default function TargetsList(props: TargetsListProps) {
                 (item, index) =>
                   item.should_display_as_default && (
                     <React.Fragment key={index}>
-                      {item.organisation_name} - <br /> {item.description}
+                      {item.organisation_name} - {item.description}
                     </React.Fragment>
                   ),
               )

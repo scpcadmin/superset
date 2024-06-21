@@ -1,8 +1,8 @@
-import { t, validateNonEmpty } from '@superset-ui/core';
-import {
-  ControlPanelConfig,
-  sharedControls,
-} from '@superset-ui/chart-controls';
+import {t, validateNonEmpty} from '@superset-ui/core';
+import {ControlPanelConfig, sharedControls,} from '@superset-ui/chart-controls';
+import {metricsSection} from '../../../controls/metricsSection';
+import {labelsSection} from '../../../controls/labelsSection';
+import {legendSection} from '@superset-ui/plugin-chart-echarts';
 
 const config: ControlPanelConfig = {
   // For control input types, see: superset-frontend/src/explore/components/controls/index.js
@@ -42,57 +42,14 @@ const config: ControlPanelConfig = {
       ],
     },
     {
-      label: t('Hello Control!'),
+      label: t('Metrics Options'),
       expanded: true,
-      controlSetRows: [
-        [
-          {
-            name: 'header_text',
-            config: {
-              type: 'TextControl',
-              default: 'Hello, World!',
-              renderTrigger: true,
-              // ^ this makes it apply instantaneously, without triggering a "run query" button
-              label: t('Header Text'),
-              description: t('The text you want to see in the header'),
-            },
-          },
-        ],
-        [
-          {
-            name: 'bold_text',
-            config: {
-              type: 'CheckboxControl',
-              label: t('Bold Text'),
-              renderTrigger: true,
-              default: true,
-              description: t('A checkbox to make the '),
-            },
-          },
-        ],
-        [
-          {
-            name: 'header_font_size',
-            config: {
-              type: 'SelectControl',
-              label: t('Font Size'),
-              default: 'xl',
-              choices: [
-                // [value, label]
-                ['xxs', 'xx-small'],
-                ['xs', 'x-small'],
-                ['s', 'small'],
-                ['m', 'medium'],
-                ['l', 'large'],
-                ['xl', 'x-large'],
-                ['xxl', 'xx-large'],
-              ],
-              renderTrigger: true,
-              description: t('The size of your header font'),
-            },
-          },
-        ],
-      ],
+      controlSetRows: [...metricsSection],
+    },
+    {
+      label: t('Chart Options'),
+      expanded: true,
+      controlSetRows: [['color_scheme'], ...legendSection, ...labelsSection],
     },
   ],
 };

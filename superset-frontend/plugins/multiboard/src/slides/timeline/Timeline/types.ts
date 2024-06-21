@@ -4,6 +4,7 @@ import {
   TimeseriesDataRecord,
 } from '@superset-ui/core';
 import { EChartsCoreOption } from 'echarts';
+import {MetricsCustomizeProps} from '../../attacks/Metrics/types';
 
 export interface TimelineStylesProps {
   height: number;
@@ -18,10 +19,9 @@ export interface TimelineState {
   highLevelAttacks: number;
 }
 
-interface TimelineCustomizeProps {
-  headerText: string;
+export type TimelineCustomizeProps = MetricsCustomizeProps & {
   chartOptions: EChartsCoreOption;
-}
+};
 
 export type TimelineQueryFormData = QueryFormData &
   TimelineStylesProps &
@@ -30,5 +30,6 @@ export type TimelineQueryFormData = QueryFormData &
 export type TimelineProps = TimelineStylesProps &
   TimelineCustomizeProps & {
     data: TimeseriesDataRecord[];
+    metricsCustomizeProps: MetricsCustomizeProps;
     // add typing here for the props you pass in from transformProps.ts!
   };

@@ -1,5 +1,5 @@
-import {QueryFormData, supersetTheme,} from '@superset-ui/core';
-import {EChartsCoreOption} from 'echarts';
+import {QueryFormData} from '@superset-ui/core';
+import {MetricsCustomizeProps} from '../Metrics/types';
 
 export type TotalIncidentsBarState = {
   dateAdded: number;
@@ -11,14 +11,9 @@ export type TotalIncidentsBarState = {
 export interface TotalIncidentsBarStylesProps {
   height: number;
   width: number;
-  headerFontSize: keyof typeof supersetTheme.typography.sizes;
-  boldText: boolean;
 }
 
-interface TotalIncidentsBarCustomizeProps {
-  headerText: string;
-  chartOptions: EChartsCoreOption;
-}
+export type TotalIncidentsBarCustomizeProps = MetricsCustomizeProps & {};
 
 export type TotalIncidentsBarQueryFormData = QueryFormData &
   TotalIncidentsBarStylesProps &

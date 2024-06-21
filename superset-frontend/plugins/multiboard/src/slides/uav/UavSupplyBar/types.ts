@@ -1,5 +1,6 @@
-import {QueryFormData, supersetTheme,} from '@superset-ui/core';
-import {EChartsCoreOption} from 'echarts';
+import { QueryFormData, supersetTheme } from '@superset-ui/core';
+import { EChartsCoreOption } from 'echarts';
+import { MetricsCustomizeProps } from '../../attacks/Metrics/types';
 
 export type UavSupplyBarState = {
   dateAdded: number;
@@ -11,14 +12,11 @@ export type UavSupplyBarState = {
 export interface UavSupplyBarStylesProps {
   height: number;
   width: number;
-  headerFontSize: keyof typeof supersetTheme.typography.sizes;
-  boldText: boolean;
 }
 
-interface UavSupplyBarCustomizeProps {
-  headerText: string;
+export type UavSupplyBarCustomizeProps = MetricsCustomizeProps & {
   chartOptions: EChartsCoreOption;
-}
+};
 
 export type UavSupplyBarQueryFormData = QueryFormData &
   UavSupplyBarStylesProps &
@@ -26,8 +24,9 @@ export type UavSupplyBarQueryFormData = QueryFormData &
 
 export type UavSupplyBarProps = UavSupplyBarStylesProps &
   UavSupplyBarCustomizeProps & {
-  data: any;
-  yearThis: number;
-  yearPrev: number;
-  // add typing here for the props you pass in from transformProps.ts!
-};
+    data: any;
+    yearThis: number;
+    yearPrev: number;
+    metricsCustomizeProps: MetricsCustomizeProps;
+    // add typing here for the props you pass in from transformProps.ts!
+  };

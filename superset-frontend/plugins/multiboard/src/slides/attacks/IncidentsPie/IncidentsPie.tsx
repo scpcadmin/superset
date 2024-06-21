@@ -1,7 +1,7 @@
-import React, {createRef} from 'react';
-import {styled} from '@superset-ui/core';
-import {IncidentsPieProps, IncidentsPieStylesProps} from './types';
-import Echart from '../../../components/Echart';
+import React, { createRef } from 'react';
+import { styled } from '@superset-ui/core';
+import { Echart } from '@superset-ui/plugin-chart-echarts';
+import { IncidentsPieProps, IncidentsPieStylesProps } from './types';
 import ChartHeader from '../../../components/ChartHeader/ChartHeader';
 
 const Styles = styled.div<IncidentsPieStylesProps>`
@@ -12,17 +12,17 @@ const Styles = styled.div<IncidentsPieStylesProps>`
 `;
 
 export default function IncidentsPie(props: IncidentsPieProps) {
-  const {data, height, width, chartOptions, thisYear, diff} = props;
+  const { headerText, headerFontSize, data, height, width, chartOptions, thisYear } = props;
+
+  const headerTextFormatted = headerText
+    .replace('{thisYear}', String(thisYear))
+    .replace('{prevYear}', String(thisYear - 1));
 
   const rootElem = createRef<HTMLDivElement>();
 
   return (
     <Styles ref={rootElem} height={height} width={width}>
-      <ChartHeader
-        title={`Кількість та критичність кіберінцидентів в ${thisYear} ${
-          diff > 0 ? 'зменшилась' : 'збільшилась'
-        }`}
-      />
+      <ChartHeader title={headerTextFormatted} fontSize={headerFontSize}/>
       <Echart height={height - 62} width={width} echartOptions={chartOptions} />
     </Styles>
   );

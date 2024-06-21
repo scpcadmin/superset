@@ -1,7 +1,4 @@
-import {
-  QueryFormData,
-  TimeseriesDataRecord,
-} from '@superset-ui/core';
+import { QueryFormData, TimeseriesDataRecord } from '@superset-ui/core';
 
 export interface TargetsListStylesProps {
   height: number;
@@ -10,6 +7,9 @@ export interface TargetsListStylesProps {
 
 interface TargetsListCustomizeProps {
   headerText: string;
+  headerFontSize: number;
+  subheaderText: string;
+  subheaderFontSize: number;
 }
 
 export type TargetsListQueryFormData = QueryFormData &
@@ -18,6 +18,6 @@ export type TargetsListQueryFormData = QueryFormData &
 
 export type TargetsListProps = TargetsListStylesProps &
   TargetsListCustomizeProps & {
-  data: TimeseriesDataRecord[];
-  // add typing here for the props you pass in from transformProps.ts!
-};
+    data: TimeseriesDataRecord[];
+    // add typing here for the props you pass in from transformProps.ts!
+  };

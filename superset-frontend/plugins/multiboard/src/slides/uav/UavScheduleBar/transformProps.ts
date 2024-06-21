@@ -1,15 +1,38 @@
-import { ChartProps } from '@superset-ui/core';
+import { ChartProps, CategoricalColorNamespace } from '@superset-ui/core';
 import { EChartsCoreOption } from 'echarts';
 import { UavScheduleBarState } from './types';
+import {getLegendProps} from '../../../utils/series';
+import {getChartPadding} from '@superset-ui/plugin-chart-echarts';
+import {convertInteger} from '../../../utils/convertInteger';
 
 export default function transformProps(chartProps: ChartProps) {
   const { width, height, formData, queriesData } = chartProps;
-  const { boldText, headerFontSize, headerText } = formData;
+  const {
+    colorScheme,
+    headerText,
+    headerFontSize,
+    showLegend,
+    legendMargin,
+    legendOrientation,
+    legendType,
+    xLabelFontSize,
+    xLabelMargin,
+    xLabelColor,
+    yLabelFontSize,
+    yLabelMargin,
+    yLabelColor,
+  } = formData;
 
   const data = queriesData[0].data as UavScheduleBarState[];
-  const year = new Date(queriesData[0].to_dttm).getFullYear();
+  const thisYear = new Date(queriesData[0].to_dttm).getFullYear();
+  const prevYear = thisYear - 1;
+  const colorFn = CategoricalColorNamespace.getScale(colorScheme as string);
 
-  console.log('formData via UavScheduleBarState.ts', data);
+  const chartPadding = getChartPadding(
+    showLegend,
+    legendOrientation,
+    legendMargin,
+  );
 
   const chartOptions: EChartsCoreOption = {
     grid: {
@@ -19,36 +42,7 @@ export default function transformProps(chartProps: ChartProps) {
       right: 0,
     },
     legend: {
-      type: 'scroll',
-      orient: 'horizontal',
-      bottom: 0,
-      left: -30,
-      itemGap: 16,
-      icon: 'none',
-      formatter(name) {
-        return `{symbol|}\n{name|${name}}`;
-      },
-      textStyle: {
-        rich: {
-          symbol: {
-            align: 'left',
-            verticalAlign: 'top',
-            width: 15,
-            height: 15,
-            borderRadius: 50,
-            backgroundColor: params => params,
-          },
-          name: {
-            fontSize: 16,
-            fontWeight: 600,
-            lineHeight: 24,
-            opacity: 0.5,
-            align: 'left',
-            verticalAlign: 'bottom',
-            padding: [4, 0, 0, 0],
-          },
-        },
-      },
+      ...getLegendProps(showLegend, legendType, legendOrientation),
     },
     tooltip: {
       trigger: 'axis',
@@ -60,10 +54,10 @@ export default function transformProps(chartProps: ChartProps) {
       type: 'category',
       data: data.map(item => item.month),
       axisLabel: {
-        color: '#000',
+        color: `rgba(${xLabelColor.r}, ${xLabelColor.g}, ${xLabelColor.b}, ${xLabelColor.a})`,
         fontWeight: 'bold',
-        fontSize: 10,
-        padding: [16, 0, 0, 0],
+        fontSize: xLabelFontSize,
+        padding: [convertInteger(xLabelMargin), 0, 0, 0],
         interval: 0,
       },
       axisTick: {
@@ -73,10 +67,10 @@ export default function transformProps(chartProps: ChartProps) {
     yAxis: {
       type: 'value',
       axisLabel: {
-        color: '#000',
+        color: `rgba(${yLabelColor.r}, ${yLabelColor.g}, ${yLabelColor.b}, ${yLabelColor.a})`,
         fontWeight: 'bold',
-        fontSize: 10,
-        padding: [0, 16, 0, 0],
+        fontSize: yLabelFontSize,
+        padding: [0, convertInteger(yLabelMargin), 0, 0],
       },
     },
     series: [
@@ -86,7 +80,7 @@ export default function transformProps(chartProps: ChartProps) {
         type: 'bar',
         barWidth: '6px',
         itemStyle: {
-          color: '#EFCF41',
+          color: colorFn('Загальна кількість'),
         }
       },
     ],
@@ -95,10 +89,10 @@ export default function transformProps(chartProps: ChartProps) {
   return {
     width,
     height,
-    boldText,
     headerFontSize,
     headerText,
     chartOptions,
-    year
+    thisYear,
+    prevYear,
   };
 }
