@@ -2,9 +2,11 @@ import {CategoricalColorNamespace, ChartProps} from '@superset-ui/core';
 import {EChartsCoreOption} from 'echarts';
 import {getChartPadding} from '@superset-ui/plugin-chart-echarts';
 import {UavSupplyBarState} from './types';
-import {TimelineCustomizeProps} from '../../timeline/Timeline/types';
 import {getLegendProps} from '../../../utils/series';
 import {convertInteger} from '../../../utils/convertInteger';
+import { formatDateShort } from '../../../utils/formatters';
+
+const TOTAL_RECORD_NAME = 'ЗАГАЛОМ';
 
 export default function transformProps(chartProps: ChartProps) {
   const {width, height, formData, queriesData} = chartProps;
@@ -26,52 +28,48 @@ export default function transformProps(chartProps: ChartProps) {
     yLabelColor,
   } = formData;
 
-  const metricsCustomizeProps = formData as TimelineCustomizeProps;
-  const data = queriesData[0].data['0'] as UavSupplyBarState;
+  const metricsCustomizeProps = formData as UavSupplyBarCustomizeProps;
+  const reportDate = formatDateShort(queriesData[0].to_dttm);
+  const data = queriesData[0].data as UavSupplyBarState[];
+
   const colorFn = CategoricalColorNamespace.getScale(colorScheme as string);
 
-  let categories = [
-    'Квадрокоптер розвідувальний',
-    'Квадрокоптер ударний',
-    'Загалом FPV',
-    'Літак розвідувальний',
-    'Літак ударний',
-    'ЗАГАЛОМ',
-  ];
-  categories = categories.map(category => category.split(' ').join('\n'));
+  const categories: string[] = [];
+  const totalContracted: number[] = [];
+  const totalGaveAway: number[] = [];
+  const latestGaveAway: number[] = [];
+  let totalRecord: UavSupplyBarState | null = null;
 
-  const dataZa103 = [10000, 0, 0, 30000, 0, 20000];
-  const dataPeredano = [5000, 69000, 65000, 0, 47060, 0];
-  const dataZakontaktovano = [100000, 100000, 100000, 100000, 100000, 100000];
+  data.map(item => {
 
-  const dataMain = dataZakontaktovano.map(function (value, index) {
-    return value - (dataZa103[index] + dataPeredano[index]);
+    // not include total record in chart
+    if(item.name === TOTAL_RECORD_NAME) {
+      totalRecord = item;
+      return;
+    };
+
+    totalContracted.push(item.totalContracted);
+    totalGaveAway.push(item.totalGaveAway);
+    latestGaveAway.push(item.latestGaveAway);
+    categories.push(item.name.split(' ').join('\n'));
   });
-
-  const chartPadding = getChartPadding(
-    showLegend,
-    legendOrientation,
-    legendMargin,
-    showValue
-  );
 
   function getUavSupplyChartSeries(
     name: string,
     data: any,
-    labelData: any,
     colorFn: (category: string) => string,
+    showValue: boolean,
+    zIndex: number = 1,
+    isStacked: boolean,
   ) {
     return {
       name,
       type: 'bar',
-      stack: 'total',
+      stack: isStacked,
       label: {
         show: showValue,
         position: 'insideTop',
         formatter(params) {
-          if (labelData) {
-            return labelData[params.dataIndex];
-          }
           return params.value !== 0 ? params.value : '';
         },
         color: `rgba(${valueColor.r}, ${valueColor.g}, ${valueColor.b}, ${valueColor.a})`,
@@ -83,15 +81,22 @@ export default function transformProps(chartProps: ChartProps) {
       itemStyle: {
         color: colorFn(name),
       },
+      z: zIndex,
+      barGap: '-100%'
     };
   }
+
+  const chartPadding = getChartPadding(
+    showLegend,
+    legendOrientation,
+    legendMargin,
+    {top: 64, bottom: 90, left: 20, right: 0}
+  );
 
   const chartOptions: EChartsCoreOption = {
     grid: {
       containLabel: true,
-      bottom: 90,
-      left: 20,
-      right: 0,
+      ...chartPadding,
     },
     tooltip: {
       trigger: 'axis',
@@ -99,13 +104,11 @@ export default function transformProps(chartProps: ChartProps) {
         type: 'shadow',
       },
       formatter(params) {
-        const total = dataZakontaktovano[params[0].dataIndex];
         let tooltipText = `${params[0].axisValue}<br/>`;
 
         params.forEach(function (item, index) {
           if (item.value !== 0) {
-            const value = index === params.length - 1 ? total : item.value;
-            tooltipText += `${item.marker + item.seriesName}: ${value}<br/>`;
+            tooltipText += `${item.marker + item.seriesName}: ${item.value}<br/>`;
           }
         });
 
@@ -139,9 +142,9 @@ export default function transformProps(chartProps: ChartProps) {
       },
     },
     series: [
-      getUavSupplyChartSeries('Передано', dataPeredano, null, colorFn, showValue),
-      getUavSupplyChartSeries('за 1.03', dataZa103, null, colorFn, showValue),
-      getUavSupplyChartSeries('Законтрактовано', dataMain, dataZakontaktovano, colorFn, showValue),
+      getUavSupplyChartSeries('Законтрактовано', totalContracted, colorFn, showValue, 1, false),
+      getUavSupplyChartSeries('Передано', totalGaveAway, colorFn, showValue, 2, true),
+      getUavSupplyChartSeries(`за ${reportDate}`, latestGaveAway, colorFn, showValue, 2, true),
     ],
   };
 
@@ -150,5 +153,6 @@ export default function transformProps(chartProps: ChartProps) {
     height,
     chartOptions,
     metricsCustomizeProps,
+    totalRecord,
   };
 }

@@ -38,6 +38,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from superset import feature_flag_manager
 from superset.extensions import machine_auth_provider_factory
 from superset.utils.retries import retry_call
+import time
 
 WindowSize = tuple[int, int]
 logger = logging.getLogger(__name__)
@@ -81,6 +82,11 @@ class WebDriverProxy(ABC):
         Run webdriver and return a screenshot
         """
 
+    @abstractmethod
+    def get_screenshots(self, urls: List[str], element_name: str, user: User) -> List[bytes | None]:
+        """
+        Run webdriver and return a screenshots
+        """
 
 class WebDriverPlaywright(WebDriverProxy):
     @staticmethod
@@ -132,6 +138,11 @@ class WebDriverPlaywright(WebDriverProxy):
             logger.exception("Failed to capture unexpected errors")
 
         return error_messages
+
+    def get_screenshots(  # pylint: disable=too-many-locals, too-many-statements
+            self, urls: List[str], element_name: str, user: User
+        ) -> List[bytes | None]:
+        return []
 
     def get_screenshot(  # pylint: disable=too-many-locals, too-many-statements
         self, url: str, element_name: str, user: User
@@ -352,7 +363,11 @@ class WebDriverSelenium(WebDriverProxy):
 
     def get_screenshot(self, url: str, element_name: str, user: User) -> bytes | None:
         driver = self.auth(user)
-        driver.set_window_size(*self._window)
+
+        current_window_size = driver.get_window_size()
+        current_height = current_window_size['height']
+        driver.set_window_size(self._window[0], current_height)
+
         driver.get(url)
         img: bytes | None = None
         selenium_headstart = current_app.config["SCREENSHOT_SELENIUM_HEADSTART"]
@@ -438,3 +453,98 @@ class WebDriverSelenium(WebDriverProxy):
         finally:
             self.destroy(driver, current_app.config["SCREENSHOT_SELENIUM_RETRIES"])
         return img
+
+    def get_screenshots(self, urls: List[str], element_name: str, user: User) -> List[bytes | None]:
+        driver = self.auth(user)
+
+        current_window_size = driver.get_window_size()
+        current_height = current_window_size['height']
+        driver.set_window_size(self._window[0], current_height)
+
+        screenshots = []
+        selenium_headstart = current_app.config["SCREENSHOT_SELENIUM_HEADSTART"]
+
+        logger.debug("Sleeping for %i seconds", selenium_headstart)
+        sleep(selenium_headstart)
+
+        for url in urls:
+            driver.get(url)
+            img: bytes | None = None
+
+            try:
+                try:
+                    # page didn't load
+                    logger.debug(
+                        "Wait for the presence of %s at url: %s", element_name, url
+                    )
+                    element = WebDriverWait(driver, self._screenshot_locate_wait).until(
+                        EC.presence_of_element_located((By.CLASS_NAME, element_name))
+                    )
+                except TimeoutException as ex:
+                    logger.exception("Selenium timed out requesting url %s", url)
+                    screenshots.append(None)
+                    continue
+
+                try:
+                    # chart containers didn't render
+                    logger.debug("Wait for chart containers to draw at url: %s", url)
+                    WebDriverWait(driver, self._screenshot_locate_wait).until(
+                        EC.visibility_of_all_elements_located(
+                            (By.CLASS_NAME, "slice_container")
+                        )
+                    )
+                except TimeoutException as ex:
+                    logger.exception(
+                        "Selenium timed out waiting for chart containers to draw at url %s",
+                        url,
+                    )
+                    screenshots.append(None)
+                    continue
+
+                try:
+                    # charts took too long to load
+                    logger.debug(
+                        "Wait for loading element of charts to be gone at url: %s", url
+                    )
+                    WebDriverWait(driver, self._screenshot_load_wait).until_not(
+                        EC.presence_of_all_elements_located((By.CLASS_NAME, "loading"))
+                    )
+                except TimeoutException as ex:
+                    logger.exception(
+                        "Selenium timed out waiting for charts to load at url %s", url
+                    )
+                    screenshots.append(None)
+                    continue
+
+                selenium_animation_wait = current_app.config[
+                    "SCREENSHOT_SELENIUM_ANIMATION_WAIT"
+                ]
+                logger.debug("Wait %i seconds for chart animation", selenium_animation_wait)
+                sleep(selenium_animation_wait)
+                logger.debug(
+                    "Taking a PNG screenshot of url %s as user %s",
+                    url,
+                    user.username,
+                )
+
+                if current_app.config["SCREENSHOT_REPLACE_UNEXPECTED_ERRORS"]:
+                    unexpected_errors = WebDriverSelenium.find_unexpected_errors(driver)
+                    if unexpected_errors:
+                        logger.warning(
+                            "%i errors found in the screenshot. URL: %s. Errors are: %s",
+                            len(unexpected_errors),
+                            url,
+                            unexpected_errors,
+                        )
+
+                img = element.screenshot_as_png
+                screenshots.append(img)
+            except (TimeoutException, StaleElementReferenceException, WebDriverException) as ex:
+                logger.exception("Encountered an unexpected error when requesting url %s", url)
+                screenshots.append(None)
+            except Exception as ex:
+                logger.exception("An unexpected error occurred: %s", str(ex))
+                screenshots.append(None)
+
+        self.destroy(driver, current_app.config["SCREENSHOT_SELENIUM_RETRIES"])
+        return screenshots

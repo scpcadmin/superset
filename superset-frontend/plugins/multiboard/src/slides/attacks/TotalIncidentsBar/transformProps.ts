@@ -25,7 +25,6 @@ export default function transformProps(chartProps: ChartProps) {
   const testData = {
     ...data,
     year: new Date(data.dateAdded),
-    totalPrevYear: 2543,
   };
 
   const date = new Date(testData.dateAdded);

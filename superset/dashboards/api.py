@@ -22,6 +22,7 @@ from datetime import datetime
 from io import BytesIO
 from typing import Any, Callable, cast, Optional
 from zipfile import is_zipfile, ZipFile
+from urllib import parse
 
 from flask import redirect, request, Response, send_file, url_for
 from flask_appbuilder import permission_name
@@ -45,7 +46,9 @@ from superset.commands.dashboard.exceptions import (
     DashboardInvalidError,
     DashboardNotFoundError,
     DashboardUpdateFailedError,
+    DashboardPdfInvalidStateError
 )
+from superset.key_value.exceptions import KeyValueAccessDeniedError
 from superset.commands.dashboard.export import ExportDashboardsCommand
 from superset.commands.dashboard.importers.dispatcher import ImportDashboardsCommand
 from superset.commands.dashboard.update import UpdateDashboardCommand
@@ -71,6 +74,7 @@ from superset.dashboards.schemas import (
     DashboardPutSchema,
     EmbeddedDashboardConfigSchema,
     EmbeddedDashboardResponseSchema,
+    DashboardPdfStateSchema,
     get_delete_ids_schema,
     get_export_ids_schema,
     get_fav_star_ids_schema,
@@ -85,6 +89,8 @@ from superset.tasks.thumbnails import cache_dashboard_thumbnail
 from superset.tasks.utils import get_current_user
 from superset.utils.screenshots import DashboardScreenshot
 from superset.utils.urls import get_url_path
+from superset.utils.dashboard_export import export_dashboard
+from superset.views.base import PdfResponse, generate_download_headers
 from superset.views.base_api import (
     BaseSupersetModelRestApi,
     RelatedFieldFilter,
@@ -124,7 +130,6 @@ def with_dashboard(
 
 class DashboardRestApi(BaseSupersetModelRestApi):
     datamodel = SQLAInterface(Dashboard)
-
     @before_request(only=["thumbnail"])
     def ensure_thumbnails_enabled(self) -> Optional[Response]:
         if not is_feature_enabled("THUMBNAILS"):
@@ -146,6 +151,7 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         "delete_embedded",
         "thumbnail",
         "copy_dash",
+        "download_pdf"
     }
     resource_name = "dashboard"
     allow_browser_login = True
@@ -1363,3 +1369,73 @@ class DashboardRestApi(BaseSupersetModelRestApi):
                 ).timestamp(),
             },
         )
+
+    @expose("/<id>/download-pdf/", methods=("POST",))
+    @protect()
+    @safe
+    @statsd_metrics
+    @event_logger.log_this_with_context(
+        action=lambda self, *args, **kwargs: f"{self.__class__.__name__}"
+        f".download_pdf",
+        log_to_statsd=False,
+    )
+    @requires_json
+    def download_pdf(self, id: int) -> Response:
+        """Download all dashboard tabs as pdf.
+        ---
+        post:
+          summary: Download all dashboard tabs as pdf
+          parameters:
+          - in: path
+            schema:
+              type: integer
+            name: id
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/DashboardPdfStateSchema'
+          responses:
+            200:
+              description: Dashboard pdf
+              content:
+                application/pdf:
+                  schema:
+                    schema:
+                        type: string
+            401:
+              $ref: '#/components/responses/401'
+            404:
+              $ref: '#/components/responses/404'
+            500:
+              $ref: '#/components/responses/500'
+        """
+        try:
+            data = DashboardPdfStateSchema().load(request.json)
+        except (ValidationError, DashboardPdfInvalidStateError) as ex:
+            return self.response(400, message=str(ex))
+        except (
+            DashboardAccessDeniedError,
+            KeyValueAccessDeniedError,
+        ) as ex:
+            return self.response(403, message=str(ex))
+        except DashboardNotFoundError as ex:
+            return self.response(404, message=str(ex))
+
+        pdf = export_dashboard(id, data)
+        timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+        filename = f"{data['dashboardTitle']}_{timestamp}"
+
+        response = send_file(BytesIO(pdf), download_name=filename, as_attachment=True, mimetype='application/pdf')
+        event_info = {
+            "event_type": "data_export",
+            "exported_format": "pdf",
+        }
+        event_rep = repr(event_info)
+        logger.debug(
+            "PDF exported: %s", event_rep, extra={"superset_event": event_info}
+        )
+
+        return response
+

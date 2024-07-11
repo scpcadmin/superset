@@ -19,20 +19,20 @@ const Styles = styled.div<UavSupplyBarStylesProps>`
 `;
 
 export default function UavSupplyBar(props: UavSupplyBarProps) {
-  const { data, height, width, chartOptions, metricsCustomizeProps } = props;
+  const { data, height, width, chartOptions, metricsCustomizeProps, totalRecord } = props;
   const rootElem = createRef<HTMLDivElement>();
 
   return (
     <Styles ref={rootElem} height={height} width={width}>
       <div className="metrics">
         <BigMetric
-          value={60000}
+          value={totalRecord.totalGaveAway}
           text="Всього передано"
           type="small"
           customizeProps={metricsCustomizeProps}
         />
         <BigMetric
-          value={60000}
+          value={totalRecord.totalContracted}
           text="Всього законтрактовано"
           type="small"
           customizeProps={metricsCustomizeProps}

@@ -30,22 +30,50 @@ export default function transformProps(chartProps: ChartProps) {
 
   const colorFn = CategoricalColorNamespace.getScale(colorScheme as string);
 
-  const data = queriesData[0].data as TimelineState[];
+  const dates: string[] = [];
+  const criticals: number[] = [];
+  const hights: number[] = [];
+  let attacksAmount = 0;
 
-  const dateAdded: string[] = [];
-  const criticalLevelAttacks: number[] = [];
-  const highLevelAttacks: number[] = [];
+  const data: TimelineState[] = queriesData[0].data.map(
+    (item, index, array) => {
+      const { criticalLevelAttacks, highLevelAttacks, dateAdded } = item;
 
-  data.forEach(item => {
-    dateAdded.push(formatDate(item.dateAdded));
-    criticalLevelAttacks.push(item.criticalLevelAttacks);
-    highLevelAttacks.push(item.highLevelAttacks);
-  });
+      dates.push(formatDate(dateAdded));
+      criticals.push(criticalLevelAttacks);
+      hights.push(highLevelAttacks);
+      attacksAmount += criticalLevelAttacks + highLevelAttacks;
+
+      const currentHasAttacks =
+        criticalLevelAttacks > 0 || highLevelAttacks > 0;
+
+      const previousHasAttacks =
+        index > 0 &&
+        (array[index - 1].criticalLevelAttacks > 0 ||
+          array[index - 1].highLevelAttacks > 0);
+
+      const nextHasAttacks =
+        index < array.length - 1 &&
+        (array[index + 1].criticalLevelAttacks > 0 ||
+          array[index + 1].highLevelAttacks > 0);
+
+      const isFilled =
+        currentHasAttacks || previousHasAttacks || nextHasAttacks;
+
+      return {
+        dateAdded,
+        criticalLevelAttacks,
+        highLevelAttacks,
+        isFilled,
+      };
+    },
+  );
 
   const chartPadding = getChartPadding(
     showLegend,
     legendOrientation,
     legendMargin,
+    {top: 90, bottom: 20, left: 15, right: 7}
   );
 
   function getTimelineChartSeries(
@@ -71,9 +99,6 @@ export default function transformProps(chartProps: ChartProps) {
   const chartOptions: EChartsCoreOption = {
     grid: {
       ...chartPadding,
-      left: '15px',
-      right: '5px',
-      bottom: '5%',
       containLabel: true,
     },
     tooltip: {
@@ -84,12 +109,12 @@ export default function transformProps(chartProps: ChartProps) {
     },
     xAxis: {
       type: 'category',
-      data: dateAdded,
+      data: dates,
       boundaryGap: false,
       splitLine: {
         show: true,
         interval(index, value) {
-          if (index === 0 || index === dateAdded.length - 1) {
+          if (index === 0 || index === dates.length - 1) {
             return true;
           }
           return isFirstOfMonth(index, value);
@@ -99,25 +124,18 @@ export default function transformProps(chartProps: ChartProps) {
       axisLabel: {
         interval: 0,
         formatter(value, index) {
-          const date = new Date(value);
-          const day = date.getDate();
+          const [y, m, day] = value.split('.').map(Number);
+          const date = new Date(y, m - 1, day);
           const month = MONTH_NAMES[date.getMonth()];
 
-          const data = chartOptions.series[0].data;
           const val = data[index];
-          const prev = data[index - 1];
-          const next = data[index + 1];
           let str = '';
-          if (
-            val === 0 &&
-            (prev === undefined || prev === 0) &&
-            (next === undefined || next === 0)
-          ) {
+          if (!val.isFilled) {
             str += `{emptyDay|${day}}`;
           } else {
             str += `{filledDay|${day}}`;
           }
-          if (prev === undefined) {
+          if (index === 0) {
             str += `\n{monthRight|${month}}`;
           } else if (day === 1) {
             str += `\n{monthLeft|${month}}`;
@@ -160,12 +178,8 @@ export default function transformProps(chartProps: ChartProps) {
       },
     },
     series: [
-      ...getTimelineChartSeries(
-        'Критичний рівень',
-        criticalLevelAttacks,
-        colorFn,
-      ),
-      ...getTimelineChartSeries('Високий рівень', highLevelAttacks, colorFn),
+      ...getTimelineChartSeries('Критичний рівень', criticals, colorFn),
+      ...getTimelineChartSeries('Високий рівень', hights, colorFn),
     ],
   };
 
@@ -174,5 +188,6 @@ export default function transformProps(chartProps: ChartProps) {
     height,
     chartOptions,
     metricsCustomizeProps,
+    attacksAmount,
   };
 }

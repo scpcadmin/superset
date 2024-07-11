@@ -19,7 +19,7 @@
 import _JSONbig from 'json-bigint';
 import { cloneDeepWith } from 'lodash';
 
-import { ParseMethod, TextResponse, JsonResponse } from '../types';
+import { ParseMethod, TextResponse, JsonResponse, BlobResponse } from '../types';
 
 const JSONbig = _JSONbig({
   constructorAction: 'preserve',
@@ -35,6 +35,8 @@ export default async function parseResponse<T extends ParseMethod = 'json'>(
       ? JsonResponse
       : T extends 'text'
         ? TextResponse
+        : T extends 'blob'
+          ? BlobResponse
         : never;
   const response = await apiPromise;
   // reject failed HTTP requests with the raw response
@@ -65,6 +67,14 @@ export default async function parseResponse<T extends ParseMethod = 'json'>(
     };
     return result as ReturnType;
   }
+  if (parseMethod === 'blob') {
+    const blob = await response.blob();
+    const result: BlobResponse = {
+      response,
+      blob,
+    };
+    return result as ReturnType;
+  }
   // by default treat this as json
   if (parseMethod === undefined || parseMethod === 'json') {
     const json = await response.json();
@@ -75,6 +85,6 @@ export default async function parseResponse<T extends ParseMethod = 'json'>(
     return result as ReturnType;
   }
   throw new Error(
-    `Expected parseResponse=json|json-bigint|text|raw|null, got '${parseMethod}'.`,
+    `Expected parseResponse=json|json-bigint|text|blob|raw|null, got '${parseMethod}'.`,
   );
 }

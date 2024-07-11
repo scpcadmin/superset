@@ -1,15 +1,8 @@
-import { ControlSetRow } from '@superset-ui/plugin-chart-echarts';
-import {
-  ControlSetItem,
-  ControlSubSectionHeader,
-} from '@superset-ui/chart-controls';
-import { t } from '@superset-ui/core';
+import {ControlSetRow} from '@superset-ui/plugin-chart-echarts';
+import {ControlSetItem, ControlSubSectionHeader,} from '@superset-ui/chart-controls';
+import {t} from '@superset-ui/core';
 import React from 'react';
-import {
-  FONT_SIZE_OPTIONS,
-  LABEL_COLOR,
-  LABEL_MARGIN_OPTIONS,
-} from '../constants';
+import {DEFAULT_COLOR_PICKER, FONT_SIZE_OPTIONS, LABEL_MARGIN_OPTIONS,} from '../constants';
 
 const xLabelFontSizeControl: ControlSetItem = {
   name: 'x_label_font_size',
@@ -44,7 +37,7 @@ const xLabelColorControl: ControlSetItem = {
   config: {
     type: 'ColorPickerControl',
     label: t('X Label Color'),
-    default: LABEL_COLOR,
+    default: DEFAULT_COLOR_PICKER,
     renderTrigger: true,
     description: t('Color of the x label'),
   },
@@ -83,7 +76,7 @@ const yLabelColorControl: ControlSetItem = {
   config: {
     type: 'ColorPickerControl',
     label: t('Y Label Color'),
-    default: LABEL_COLOR,
+    default: DEFAULT_COLOR_PICKER,
     renderTrigger: true,
     description: t('Color of the y label'),
   },

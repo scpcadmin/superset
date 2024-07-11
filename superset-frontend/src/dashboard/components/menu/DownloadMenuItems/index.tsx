@@ -20,9 +20,12 @@ import React from 'react';
 import { Menu } from 'src/components/Menu';
 import DownloadAsImage from './DownloadAsImage';
 import DownloadAsPdf from './DownloadAsPdf';
+import DownloadDashboardAsPdf from './DownloadDashboardAsPdf';
 
 export interface DownloadMenuItemProps {
+  dashboardId: number;
   pdfMenuItemTitle: string;
+  pdfMenuDashboardItemTitle: string;
   imageMenuItemTitle: string;
   addDangerToast: Function;
   dashboardTitle: string;
@@ -31,7 +34,9 @@ export interface DownloadMenuItemProps {
 
 const DownloadMenuItems = (props: DownloadMenuItemProps) => {
   const {
+    dashboardId,
     pdfMenuItemTitle,
+    pdfMenuDashboardItemTitle,
     imageMenuItemTitle,
     addDangerToast,
     dashboardTitle,
@@ -43,6 +48,14 @@ const DownloadMenuItems = (props: DownloadMenuItemProps) => {
     <Menu selectable={false}>
       <DownloadAsPdf
         text={pdfMenuItemTitle}
+        addDangerToast={addDangerToast}
+        dashboardTitle={dashboardTitle}
+        logEvent={logEvent}
+        {...rest}
+      />
+      <DownloadDashboardAsPdf
+        dashboardId={dashboardId}
+        text={pdfMenuDashboardItemTitle}
         addDangerToast={addDangerToast}
         dashboardTitle={dashboardTitle}
         logEvent={logEvent}

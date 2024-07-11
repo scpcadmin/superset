@@ -32,14 +32,13 @@ export default function transformProps(chartProps: ChartProps) {
     showLegend,
     legendOrientation,
     legendMargin,
+    {top: 64, bottom: 90, left: 20, right: 0}
   );
 
   const chartOptions: EChartsCoreOption = {
     grid: {
       containLabel: true,
-      bottom: 90,
-      left: 20,
-      right: 0,
+      ...chartPadding
     },
     legend: {
       ...getLegendProps(showLegend, legendType, legendOrientation),

@@ -16,7 +16,11 @@
 # under the License.
 
 import logging
+import os
 from io import BytesIO
+import tempfile
+import pypdf
+import pytesseract
 
 from superset.commands.report.exceptions import ReportSchedulePdfFailedError
 
@@ -26,23 +30,41 @@ try:
 except ModuleNotFoundError:
     logger.info("No PIL installation found")
 
-
 def build_pdf_from_screenshots(snapshots: list[bytes]) -> bytes:
     images = []
 
     for snap in snapshots:
+        byte_img = BytesIO(snap)
+        byte_img.seek(0)
         img = Image.open(BytesIO(snap))
         if img.mode == "RGBA":
             img = img.convert("RGB")
-        images.append(img)
+        temp_img = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+        img.save(temp_img, format="PNG")
+        images.append(temp_img.name)
+
     logger.info("building pdf")
+
     try:
-        new_pdf = BytesIO()
-        images[0].save(new_pdf, "PDF", save_all=True, append_images=images[1:])
-        new_pdf.seek(0)
+        pdf_writer = pypdf.PdfWriter()
+        custom_oem_psm_config = r'--oem 3 --psm 11'
+        for image in images:
+            page = pytesseract.image_to_pdf_or_hocr(image, extension='pdf', lang='ukr+eng', config=custom_oem_psm_config)
+
+            pdf = pypdf.PdfReader(BytesIO(page))
+            pdf_writer.add_page(pdf.get_page(0))
+
+        output_pdf = BytesIO()
+        pdf_writer.write(output_pdf)
+        output_pdf.seek(0)
+        new_pdf = output_pdf.read()
+
+        for temp_img in images:
+            os.remove(temp_img)
+
     except Exception as ex:
         raise ReportSchedulePdfFailedError(
             f"Failed converting screenshots to pdf {str(ex)}"
         ) from ex
 
-    return new_pdf.read()
+    return new_pdf

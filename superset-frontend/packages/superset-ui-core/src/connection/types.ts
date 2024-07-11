@@ -74,6 +74,7 @@ export type ParseMethod =
   | 'json'
   | 'json-bigint'
   | 'text'
+  | 'blob'
   | 'raw'
   | null
   | undefined;
@@ -125,6 +126,11 @@ export interface JsonResponse {
 export interface TextResponse {
   response: Response;
   text: string;
+}
+
+export interface BlobResponse {
+  response: Response;
+  blob: Blob;
 }
 
 export type CsrfToken = string;

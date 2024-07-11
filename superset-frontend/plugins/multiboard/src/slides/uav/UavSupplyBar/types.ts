@@ -3,10 +3,11 @@ import { EChartsCoreOption } from 'echarts';
 import { MetricsCustomizeProps } from '../../attacks/Metrics/types';
 
 export type UavSupplyBarState = {
-  dateAdded: number;
-  totalPrevYear: number;
-  totalCriticalPrevYear: number;
-  totalCriticalThisYear: number;
+  name: string;
+  totalContracted: number;
+  totalGaveAway: number;
+  latestGaveAway: number;
+  latestDate: number;
 };
 
 export interface UavSupplyBarStylesProps {
@@ -25,8 +26,7 @@ export type UavSupplyBarQueryFormData = QueryFormData &
 export type UavSupplyBarProps = UavSupplyBarStylesProps &
   UavSupplyBarCustomizeProps & {
     data: any;
-    yearThis: number;
-    yearPrev: number;
+    totalRecord: UavSupplyBarState;
     metricsCustomizeProps: MetricsCustomizeProps;
     // add typing here for the props you pass in from transformProps.ts!
   };

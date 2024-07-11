@@ -116,3 +116,8 @@ try:
     )
 except ImportError:
     logger.info("Using default Docker config...")
+
+# PDF Options: key/value pairs that will be passed as argument to DataFrame.to_pdf
+# method.
+# note: index option should not be overridden
+PDF_EXPORT = {"encoding": "utf-8"}

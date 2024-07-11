@@ -14,7 +14,7 @@ const Styles = styled.div<TimelineStylesProps>`
 `;
 
 export default function Timeline(props: TimelineProps) {
-  const { data, height, width, chartOptions, metricsCustomizeProps } = props;
+  const { data, height, width, chartOptions, metricsCustomizeProps, attacksAmount } = props;
 
   const rootElem = createRef<HTMLDivElement>();
 
@@ -22,7 +22,7 @@ export default function Timeline(props: TimelineProps) {
     <Styles ref={rootElem} height={height} width={width}>
       <div className="absolute-metric">
         <BigMetric
-          value={52}
+          value={attacksAmount}
           text="Інциденти"
           type="small"
           customizeProps={metricsCustomizeProps}

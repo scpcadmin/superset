@@ -1,6 +1,6 @@
-import {FONT_SIZE_OPTIONS, LABEL_COLOR, LABEL_MARGIN_OPTIONS} from '../constants';
+import {DEFAULT_COLOR_PICKER, FONT_SIZE_OPTIONS, LABEL_MARGIN_OPTIONS} from '../constants';
 import {ControlSetRow} from '@superset-ui/plugin-chart-echarts';
-import {ControlSetItem, ControlSubSectionHeader, ControlPanelsContainerProps} from '@superset-ui/chart-controls';
+import {ControlPanelsContainerProps, ControlSetItem, ControlSubSectionHeader} from '@superset-ui/chart-controls';
 import {t} from '@superset-ui/core';
 import React from 'react';
 
@@ -26,7 +26,7 @@ const valueFontSizeControl: ControlSetItem = {
     choices: FONT_SIZE_OPTIONS,
     default: 10,
     description: t('Value Label font size.'),
-    visibility: ({ controls }: ControlPanelsContainerProps) =>
+    visibility: ({controls}: ControlPanelsContainerProps) =>
       Boolean(controls?.show_value?.value),
   },
 };
@@ -42,7 +42,7 @@ const valueMarginControl: ControlSetItem = {
     choices: LABEL_MARGIN_OPTIONS,
     default: 30,
     description: t('Value Label Margin.'),
-    visibility: ({ controls }: ControlPanelsContainerProps) =>
+    visibility: ({controls}: ControlPanelsContainerProps) =>
       Boolean(controls?.show_value?.value),
   },
 };
@@ -52,10 +52,10 @@ const valueColorControl: ControlSetItem = {
   config: {
     type: 'ColorPickerControl',
     label: t('Value Color'),
-    default: LABEL_COLOR,
+    default: DEFAULT_COLOR_PICKER,
     renderTrigger: true,
     description: t('Color of the Value label'),
-    visibility: ({ controls }: ControlPanelsContainerProps) =>
+    visibility: ({controls}: ControlPanelsContainerProps) =>
       Boolean(controls?.show_value?.value),
   },
 };
