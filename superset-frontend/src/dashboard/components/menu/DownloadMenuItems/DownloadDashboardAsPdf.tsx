@@ -16,57 +16,74 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-import React, { SyntheticEvent } from 'react';
-import { logging, SupersetClient, t } from '@superset-ui/core';
+import React, {useState} from 'react';
 import { Menu } from 'src/components/Menu';
-import downloadAsPdf from 'src/utils/downloadAsPdf';
-import { LOG_ACTIONS_DASHBOARD_DOWNLOAD_AS_PDF } from 'src/logger/LogUtils';
-import { addDangerToast } from '../../../../components/MessageToasts/actions';
-
-/* function downloadPdf(id) {
-  return function downloadPdfThunk(dispatch) {
-    return SupersetClient.get({
-      endpoint: `/api/v1/dashboard/${id}/download-pdf`,
-    })
-      .then(({ json }) => {
-        console.log(json);
-      })
-      .catch(() =>
-        dispatch(
-          addDangerToast(t('Sorry, something went wrong. Try again later.')),
-        ),
-      );
-  };
-} */
-
-const getPdfUrl = (id: number) => `/api/v1/dashboard/${id}/download-pdf/`;
+import { useSelector } from 'react-redux';
+import { getClientErrorObject, t } from '@superset-ui/core';
+import { saveAs } from 'file-saver';
+import { fetchDashboardPdf } from 'src/utils/urlUtils';
+import { RootState } from '../../../types';
+import PdfDownloadModal from '../../PdfDownloadModal';
 
 export default function DownloadDashboardAsPdf({
+  dashboardId,
   text,
   logEvent,
   dashboardTitle,
   addDangerToast,
   ...rest
 }: {
+  dashboardId: number;
   text: string;
   addDangerToast: Function;
   dashboardTitle: string;
   logEvent?: Function;
 }) {
-  const SCREENSHOT_NODE_SELECTOR = '.dashboard';
-  const onDownloadPdf = async (e: SyntheticEvent) => {
+  const activeTabs = [];
+  const [isLoading, setIsLoading] = useState(false);
+  const { dataMask, dashboardTabs } = useSelector((state: RootState) => ({
+    dataMask: state.dataMask,
+    dashboardTabs:
+      state.dashboardInfo.metadata.native_filter_configuration[0].tabsInScope,
+  }));
+
+  const getDashboardPdf = async (closeModal: () => void) => {
+    setIsLoading(true);
     try {
-      downloadAsPdf(SCREENSHOT_NODE_SELECTOR, dashboardTitle, true)(e);
+      const response = await fetchDashboardPdf({
+        dashboardId,
+        dataMask,
+        dashboardTabs,
+        activeTabs,
+        dashboardTitle,
+      });
+
+      const formattedDate = new Date()
+        .toISOString()
+        .replace(/[-:.]/g, '')
+        .slice(0, 15);
+      const filename = `${dashboardTitle}_${formattedDate}`;
+      const { blob } = response;
+      saveAs(blob, filename);
     } catch (error) {
-      logging.error(error);
-      addDangerToast(t('Sorry, something went wrong. Try again later.'));
+      if (error) {
+        addDangerToast(
+          t('Failed to retrieve pdf report.')
+        );
+      }
+    } finally {
+      setIsLoading(false);
+      closeModal();
     }
-    logEvent?.(LOG_ACTIONS_DASHBOARD_DOWNLOAD_AS_PDF);
   };
 
   return (
     <Menu.Item key="download-pdf" {...rest}>
-      <a href={getPdfUrl(11)}>{text}</a>
+      <PdfDownloadModal
+        onSaveHandler={getDashboardPdf}
+        isLoading={isLoading}
+        triggerNode={<span>{t(text)}</span>}
+      />
     </Menu.Item>
   );
 }

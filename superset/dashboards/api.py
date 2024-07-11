@@ -22,6 +22,7 @@ from datetime import datetime
 from io import BytesIO
 from typing import Any, Callable, cast, Optional
 from zipfile import is_zipfile, ZipFile
+from urllib import parse
 
 from flask import redirect, request, Response, send_file, url_for
 from flask_appbuilder import permission_name
@@ -45,7 +46,9 @@ from superset.commands.dashboard.exceptions import (
     DashboardInvalidError,
     DashboardNotFoundError,
     DashboardUpdateFailedError,
+    DashboardPdfInvalidStateError
 )
+from superset.key_value.exceptions import KeyValueAccessDeniedError
 from superset.commands.dashboard.export import ExportDashboardsCommand
 from superset.commands.dashboard.importers.dispatcher import ImportDashboardsCommand
 from superset.commands.dashboard.update import UpdateDashboardCommand
@@ -71,6 +74,7 @@ from superset.dashboards.schemas import (
     DashboardPutSchema,
     EmbeddedDashboardConfigSchema,
     EmbeddedDashboardResponseSchema,
+    DashboardPdfStateSchema,
     get_delete_ids_schema,
     get_export_ids_schema,
     get_fav_star_ids_schema,
@@ -126,7 +130,6 @@ def with_dashboard(
 
 class DashboardRestApi(BaseSupersetModelRestApi):
     datamodel = SQLAInterface(Dashboard)
-
     @before_request(only=["thumbnail"])
     def ensure_thumbnails_enabled(self) -> Optional[Response]:
         if not is_feature_enabled("THUMBNAILS"):
@@ -1367,7 +1370,7 @@ class DashboardRestApi(BaseSupersetModelRestApi):
             },
         )
 
-    @expose("/<pk>/download-pdf/")
+    @expose("/<id>/download-pdf/", methods=("POST",))
     @protect()
     @safe
     @statsd_metrics
@@ -1376,7 +1379,8 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         f".download_pdf",
         log_to_statsd=False,
     )
-    def download_pdf(self, pk: int) -> Response:
+    @requires_json
+    def download_pdf(self, id: int) -> Response:
         """Download all dashboard tabs as pdf.
         ---
         post:
@@ -1385,7 +1389,13 @@ class DashboardRestApi(BaseSupersetModelRestApi):
           - in: path
             schema:
               type: integer
-            name: pk
+            name: id
+          requestBody:
+            required: true
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/DashboardPdfStateSchema'
           responses:
             200:
               description: Dashboard pdf
@@ -1401,13 +1411,23 @@ class DashboardRestApi(BaseSupersetModelRestApi):
             500:
               $ref: '#/components/responses/500'
         """
+        try:
+            data = DashboardPdfStateSchema().load(request.json)
+        except (ValidationError, DashboardPdfInvalidStateError) as ex:
+            return self.response(400, message=str(ex))
+        except (
+            DashboardAccessDeniedError,
+            KeyValueAccessDeniedError,
+        ) as ex:
+            return self.response(403, message=str(ex))
+        except DashboardNotFoundError as ex:
+            return self.response(404, message=str(ex))
 
-        pdf = export_dashboard()
-        print(pdf)
-        empty_pdf = b"%PDF-1.4\n1 0 obj\n<< >>\nendobj\n\n2 0 obj\n<< /Length 1 0 R /Filter /FlateDecode >>\nstream\nx\x9c\x01\x00\x01\x00\x00\x00\xff\xff\xff\xff\x00\x00\x00\x00\x00\x00\nendstream\nendobj\n\n3 0 obj\n<< /Type /Page /Parent 4 0 R /Resources 2 0 R /Contents 5 0 R >>\nendobj\n\n4 0 obj\n<< /Type /Pages /Kids [3 0 R] /Count 1 >>\nendobj\n\n5 0 obj\n<< /Length 6 0 R >>\nstream\nq\n1 0 0 1 0 0 cm\n0 0 0 0 0 0 cm\n0 g\n0 G\n0 0 0 RG\n0 0 0 rg\n0.00 w\nBT\n/F1 1 Tf\n1 0 0 1 0 0 Tm\n12 TL\n0 g\n0 G\n0 0 0 RG\n0 0 0 rg\nET\nQ\nendstream\nendobj\n\n6 0 obj\n44\nendobj\n\n7 0 obj\n<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica /Encoding /WinAnsiEncoding >>\nendobj\n\n8 0 obj\n<< /F1 7 0 R >>\nendobj\n\nxref\n0 9\n0000000000 65535 f \n0000000010 00000 n \n0000000060 00000 n \n0000000104 00000 n \n0000000174 00000 n \n0000000239 00000 n \n0000000301 00000 n \n0000000388 00000 n \n0000000489 00000 n \ntrailer\n<< /Size 9 /Root 1 0 R >>\nstartxref\n586\n%%EOF"
-        response = PdfResponse(
-            pdf, headers=generate_download_headers("pdf", "test")
-        )
+        pdf = export_dashboard(id, data)
+        timestamp = datetime.now().strftime("%Y%m%dT%H%M%S")
+        filename = f"{data['dashboardTitle']}_{timestamp}"
+
+        response = send_file(BytesIO(pdf), download_name=filename, as_attachment=True, mimetype='application/pdf')
         event_info = {
             "event_type": "data_export",
             "exported_format": "pdf",
@@ -1418,3 +1438,4 @@ class DashboardRestApi(BaseSupersetModelRestApi):
         )
 
         return response
+

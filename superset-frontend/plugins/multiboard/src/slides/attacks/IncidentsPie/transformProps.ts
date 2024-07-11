@@ -39,6 +39,7 @@ export default function transformProps(chartProps: ChartProps) {
     showLabels,
     labelLine,
     showTotal,
+    totalFontSize,
     showDate,
     innerRadius,
     donut,
@@ -69,6 +70,12 @@ export default function transformProps(chartProps: ChartProps) {
       labelType,
     });
 
+  const labelsTypography = {
+    fontSize: 12,
+    lineHeight: 15,
+    fontWeight: 700,
+  };
+
   function getPieChartSeries(
     timestamp: number,
     data: any,
@@ -97,28 +104,20 @@ export default function transformProps(chartProps: ChartProps) {
           },
           rich: {
             0: {
-              fontSize: 12,
-              lineHeight: 15,
+              ...labelsTypography,
               color: data[0].itemStyle.color,
-              fontWeight: 700,
             },
             1: {
-              fontSize: 12,
-              lineHeight: 15,
+              ...labelsTypography,
               color: data[1].itemStyle.color,
-              fontWeight: 700,
             },
             2: {
-              fontSize: 12,
-              lineHeight: 15,
+              ...labelsTypography,
               color: data[2].itemStyle.color,
-              fontWeight: 700,
             },
             3: {
-              fontSize: 12,
-              lineHeight: 15,
+              ...labelsTypography,
               color: data[3].itemStyle.color,
-              fontWeight: 700,
             },
           },
         },
@@ -141,12 +140,12 @@ export default function transformProps(chartProps: ChartProps) {
           },
           rich: {
             total: {
-              fontSize: 12,
+              fontSize: totalFontSize / 2,
               fontWeight: 400,
               opacity: 0.7,
             },
             value: {
-              fontSize: 28,
+              fontSize: totalFontSize,
               fontWeight: 700,
             },
           },
@@ -171,7 +170,7 @@ export default function transformProps(chartProps: ChartProps) {
             value: {
               fontSize: 24,
               fontWeight: 700,
-              padding: [height - 80, 0, 0, 0],
+              padding: [height - 200, 0, 0, 0],
             },
           },
         },

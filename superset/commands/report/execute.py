@@ -71,7 +71,7 @@ from superset.utils.core import HeaderDataType, override_user
 from superset.utils.csv import get_chart_csv_data, get_chart_dataframe
 from superset.utils.decorators import logs_context
 from superset.utils.pdf import build_pdf_from_screenshots
-from superset.utils.screenshots import ChartScreenshot, DashboardScreenshot
+from superset.utils.screenshots import ChartScreenshot, DashboardScreenshot, DashboardScreenshots
 from superset.utils.urls import get_url_path
 
 logger = logging.getLogger(__name__)
@@ -140,6 +140,24 @@ class BaseReportState:
         db.session.add(log)
         db.session.commit()
 
+    def _get_url_dashboard(
+        self,
+        state,
+        user_friendly: bool = False,
+        result_format: Optional[ChartDataResultFormat] = None,
+        **kwargs: Any,
+    ) -> str:
+        """
+        Get the url for this report schedule: chart or dashboard
+        """
+        force = "true" if self._report_schedule.force_screenshot else "false"
+
+        permalink_key = CreateDashboardPermalinkCommand(
+            dashboard_id=str(self._report_schedule.dashboard.uuid),
+            state=state,
+        ).run()
+        return get_url_path("Superset.dashboard_permalink", key=permalink_key)
+
     def _get_url(
         self,
         user_friendly: bool = False,
@@ -162,13 +180,15 @@ class BaseReportState:
                     type=ChartDataResultType.POST_PROCESSED.value,
                     force=force,
                 )
-            return get_url_path(
-                "ExploreView.root",
-                user_friendly=user_friendly,
-                form_data=json.dumps({"slice_id": self._report_schedule.chart_id}),
-                force=force,
-                **kwargs,
-            )
+
+        return get_url_path(
+            "ExploreView.root",
+            user_friendly=user_friendly,
+            form_data=json.dumps({"slice_id": self._report_schedule.chart_id}),
+            force=force,
+            **kwargs,
+        )
+
 
         # If we need to render dashboard in a specific state, use stateful permalink
         if dashboard_state := self._report_schedule.extra.get("dashboard"):
@@ -239,32 +259,39 @@ class BaseReportState:
             raise ReportScheduleScreenshotFailedError()
         return [image]
 
-    def _get_tabs_screenshots(self) -> list[bytes]:
-        """
-        Get chart or dashboard screenshots for all tabs
-        :raises: ReportScheduleScreenshotFailedError
-        """
-        # url = self._get_url()
-        url = "http://localhost:8088/superset/dashboard/p/jnPQZ20QYKD/"
-#         _, username = get_executor(
-#             executor_types=app.config["ALERT_REPORTS_EXECUTE_AS"],
-#             model=self._report_schedule,
-#         )
+    def _get_tabs_screenshots(self, data) -> list[bytes]:
+        urls = []
+        for tab in data['dashboardTabs']:
+            state = data['state'].copy()
+            state['activeTabs'] = [tab]
+            state['anchor'] = tab
+            url = self._get_url_dashboard(state)
+            urls.append(url)
+
         user = security_manager.find_user("admin")
-        logger.debug("User here", user)
         window_width, window_height = app.config["WEBDRIVER_WINDOW"]["dashboard"]
         window_size = (
             self._report_schedule.custom_width or window_width,
             self._report_schedule.custom_height or window_height,
         )
-        screenshot = DashboardScreenshot(
-            url,
+
+        screenshots = DashboardScreenshots(
+            urls,
             "",
             window_size=window_size,
             thumb_size=app.config["WEBDRIVER_WINDOW"]["dashboard"],
         )
-        images = screenshot.get_tabs_screenshots(user=user)
-
+        try:
+            images = screenshots.get_screenshots(user=user)
+        except SoftTimeLimitExceeded as ex:
+            logger.warning("A timeout occurred while taking a screenshot.")
+            raise ReportScheduleScreenshotTimeout() from ex
+        except Exception as ex:
+            raise ReportScheduleScreenshotFailedError(
+                f"Failed taking a screenshot {str(ex)}"
+            ) from ex
+        if not images:
+            raise ReportScheduleScreenshotFailedError()
         return images
 
     def _get_pdf(self) -> bytes:
@@ -274,6 +301,16 @@ class BaseReportState:
         """
         screenshots = self._get_screenshots()
         pdf = build_pdf_from_screenshots(screenshots)
+
+        return pdf
+
+    def _get_pdf_dashboard(self, data) -> bytes:
+        """
+        Get dashboard with all tabs pdf
+        :raises: ReportSchedulePdfFailedError
+        """
+        screenshots = self._get_tabs_screenshots(data)
+        pdf = build_ocr_sandwich_pdf_from_screenshots(screenshots)
 
         return pdf
 
@@ -714,6 +751,7 @@ class ReportScheduleStateMachine:  # pylint: disable=too-few-public-methods
         self._execution_id = task_uuid
         self._report_schedule = report_schedule
         self._scheduled_dttm = scheduled_dttm
+        print('My Report Shedule', self._report_schedule)
 
     def run(self) -> None:
         for state_cls in self.states_cls:

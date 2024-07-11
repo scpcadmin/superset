@@ -25,6 +25,7 @@ from superset import security_manager
 from superset.exceptions import SupersetException
 from superset.tags.models import TagType
 from superset.utils import core as utils
+from superset.dashboards.permalink.schemas import DashboardPermalinkStateSchema
 
 get_delete_ids_schema = {"type": "array", "items": {"type": "integer"}}
 get_export_ids_schema = {"type": "array", "items": {"type": "integer"}}
@@ -408,3 +409,17 @@ class EmbeddedDashboardResponseSchema(Schema):
     dashboard_id = fields.String()
     changed_on = fields.DateTime()
     changed_by = fields.Nested(UserSchema)
+
+class DashboardPdfStateSchema(Schema):
+    state = fields.Nested(DashboardPermalinkStateSchema())
+    dashboardTabs = fields.List(
+        fields.String(),
+        required=False,
+        allow_none=True,
+        metadata={"description": "Selected dashboard tabs"},
+    )
+    dashboardTitle = fields.String(
+        required=False,
+        allow_none=True,
+        metadata={"description": "Dashboard title"},
+    )

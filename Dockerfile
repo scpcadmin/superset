@@ -72,9 +72,19 @@ RUN mkdir -p ${PYTHONPATH} superset/static requirements superset-frontend apache
         libpq-dev \
         libecpg-dev \
         libldap2-dev \
+        ghostscript \
+        tesseract-ocr \
+        tesseract-ocr-ukr \
+        tesseract-ocr-eng \
+        pdfsandwich \
+        imagemagick \
+        unpaper \
+        pngquant \
     && touch superset/static/version_info.json \
     && chown -R superset:superset ./* \
     && rm -rf /var/lib/apt/lists/*
+
+RUN sed -i 's/rights="none"/rights="read|write"/g' /etc/ImageMagick-6/policy.xml
 
 COPY --chown=superset:superset setup.py MANIFEST.in README.md ./
 # setup.py uses the version information in package.json

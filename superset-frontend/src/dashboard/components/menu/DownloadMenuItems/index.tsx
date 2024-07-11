@@ -23,6 +23,7 @@ import DownloadAsPdf from './DownloadAsPdf';
 import DownloadDashboardAsPdf from './DownloadDashboardAsPdf';
 
 export interface DownloadMenuItemProps {
+  dashboardId: number;
   pdfMenuItemTitle: string;
   pdfMenuDashboardItemTitle: string;
   imageMenuItemTitle: string;
@@ -33,6 +34,7 @@ export interface DownloadMenuItemProps {
 
 const DownloadMenuItems = (props: DownloadMenuItemProps) => {
   const {
+    dashboardId,
     pdfMenuItemTitle,
     pdfMenuDashboardItemTitle,
     imageMenuItemTitle,
@@ -52,6 +54,7 @@ const DownloadMenuItems = (props: DownloadMenuItemProps) => {
         {...rest}
       />
       <DownloadDashboardAsPdf
+        dashboardId={dashboardId}
         text={pdfMenuDashboardItemTitle}
         addDangerToast={addDangerToast}
         dashboardTitle={dashboardTitle}

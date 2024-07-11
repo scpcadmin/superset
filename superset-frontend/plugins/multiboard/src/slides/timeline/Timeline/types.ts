@@ -14,13 +14,15 @@ export interface TimelineStylesProps {
 }
 
 export interface TimelineState {
-  dateAdded: number;
+  dateAdded: string;
   criticalLevelAttacks: number;
   highLevelAttacks: number;
+  isFilled: boolean;
 }
 
 export type TimelineCustomizeProps = MetricsCustomizeProps & {
   chartOptions: EChartsCoreOption;
+  attacksAmount: number;
 };
 
 export type TimelineQueryFormData = QueryFormData &

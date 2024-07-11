@@ -690,10 +690,8 @@ class PdfResponse(Response):
     Override Response to use pdf mimetype
     """
 
-    charset = "utf-8"
-    default_mimetype = (
-        "application/pdf"
-    )
+    charset = conf["PDF_EXPORT"].get("encoding", "utf-8")
+    default_mimetype = "application/pdf"
 
 
 class XlsxResponse(Response):

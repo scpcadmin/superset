@@ -3,7 +3,7 @@ import {styled} from '@superset-ui/core';
 import {BigMetricProps, BigMetricStylesProps} from './types';
 
 interface StylesProps {
-  customizeProps?:
+  customizeProps?: MetricsCustomizeProps
 }
 
 const Styles = styled.div<BigMetricStylesProps>`
@@ -21,6 +21,7 @@ const Styles = styled.div<BigMetricStylesProps>`
 
   .value {
     font-family: eUkraine-Medium, serif;
+    text-align: start;
   }
 
   .big .value {
@@ -65,9 +66,9 @@ export default function BigMetric(props: BigMetricProps) {
         <div className="header">
           <span className="value">
             <small className="text">{prefix}</small>
-            {value || 'Немає даних'}
+            {!value && value !== 0 ? 'Немає даних' : value}
           </span>
-          {value && <span className="title">{title}</span>}
+          {value || value === 0 ? <span className="title">{title}</span> : null}
         </div>
         {text && <span className="text">{text}</span>}
       </div>

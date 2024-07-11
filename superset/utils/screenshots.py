@@ -59,10 +59,11 @@ class BaseScreenshot:
     window_size: WindowSize = DEFAULT_SCREENSHOT_WINDOW_SIZE
     thumb_size: WindowSize = DEFAULT_SCREENSHOT_THUMBNAIL_SIZE
 
-    def __init__(self, url: str, digest: str):
+    def __init__(self, url: str, digest: str, tab_urls: List[str]):
         self.digest: str = digest
         self.url = url
         self.screenshot: bytes | None = None
+        self.tab_urls = tab_urls
         self.tab_screenshots: List[bytes] | None = None
 
     def driver(self, window_size: WindowSize | None = None) -> WebDriver:
@@ -94,12 +95,12 @@ class BaseScreenshot:
         self.screenshot = driver.get_screenshot(self.url, self.element, user)
         return self.screenshot
 
-    def get_tabs_screenshots(
-            self, user: User, window_size: WindowSize | None = None
-        ) -> bytes | None:
-            driver = self.driver(window_size)
-            self.tab_screenshots = driver.get_screenshot(self.url, self.element, user)
-            return self.screenshot
+    def get_screenshots(
+        self, user: User, window_size: WindowSize | None = None
+    ) -> bytes | None:
+        driver = self.driver(window_size)
+        self.tab_screenshots = driver.get_screenshots(self.tab_urls, self.element, user)
+        return self.tab_screenshots
 
     def get(
         self,
@@ -258,5 +259,29 @@ class DashboardScreenshot(BaseScreenshot):
         )
 
         super().__init__(url, digest)
+        self.window_size = window_size or DEFAULT_DASHBOARD_WINDOW_SIZE
+        self.thumb_size = thumb_size or DEFAULT_DASHBOARD_THUMBNAIL_SIZE
+
+class DashboardScreenshots(BaseScreenshot):
+    thumbnail_type: str = "dashboard"
+    element: str = "standalone"
+
+    def __init__(
+        self,
+        tab_urls: List[str],
+        digest: str,
+        window_size: WindowSize | None = None,
+        thumb_size: WindowSize | None = None,
+    ):
+        url = ''
+        tab_urls = [
+            modify_url_query(
+                url,
+                standalone=DashboardStandaloneMode.REPORT.value,
+            )
+            for url in tab_urls
+        ]
+
+        super().__init__(url, digest, tab_urls)
         self.window_size = window_size or DEFAULT_DASHBOARD_WINDOW_SIZE
         self.thumb_size = thumb_size or DEFAULT_DASHBOARD_THUMBNAIL_SIZE

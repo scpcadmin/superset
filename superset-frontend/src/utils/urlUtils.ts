@@ -34,6 +34,7 @@ import serializeActiveFilterValues from '../dashboard/util/serializeActiveFilter
 
 export type UrlParamType = 'string' | 'number' | 'boolean' | 'object' | 'rison';
 export type UrlParam = (typeof URL_PARAMS)[keyof typeof URL_PARAMS];
+
 export function getUrlParam(
   param: UrlParam & { type: 'string' },
 ): string | null;
@@ -178,6 +179,58 @@ export function getDashboardPermalink({
     dataMask,
     activeTabs,
     anchor,
+  });
+}
+
+export function fetchDashboardPdf({
+  dashboardId,
+  dataMask,
+  dashboardTabs,
+  activeTabs,
+  dashboardTitle,
+  anchor, // the anchor part of the link which corresponds to the tab/chart id
+}: {
+  dashboardId: string | number;
+  /**
+   * Current applied data masks (for native filters).
+   */
+  dataMask: JsonObject;
+  /**
+   * tabs in the dashboard.
+   */
+  dashboardTabs: string[];
+  /**
+   * Current active tabs in the dashboard.
+   */
+  activeTabs: string[];
+  /**
+   * dashboard title.
+   */
+  dashboardTitle: string;
+  /**
+   * The "anchor" component for the permalink. It will be scrolled into view
+   * and highlighted upon page load.
+   */
+  anchor?: string;
+}) {
+  // only encode filter state if non-empty
+  return fetchDashboardPdfApi(`/api/v1/dashboard/${dashboardId}/download-pdf`, {
+    state: {
+      urlParams: getDashboardUrlParams(),
+      dataMask,
+      activeTabs,
+      anchor,
+    },
+    dashboardTabs,
+    dashboardTitle,
+  });
+}
+
+function fetchDashboardPdfApi(endpoint: string, jsonPayload: JsonObject) {
+  return SupersetClient.post({
+    endpoint,
+    jsonPayload,
+    parseMethod: 'blob',
   });
 }
 

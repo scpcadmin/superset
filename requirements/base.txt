@@ -403,6 +403,10 @@ xlsxwriter==3.0.9
     # via apache-superset
 zipp==3.15.0
     # via importlib-metadata
+ocrmypdf==16.4.1
+img2pdf==0.5.1
+pytesseract==0.3.10
+pypdf==4.2.0
 
 # The following packages are considered to be unsafe in a requirements file:
 # setuptools

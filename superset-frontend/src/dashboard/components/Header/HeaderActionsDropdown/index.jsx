@@ -264,6 +264,7 @@ class HeaderActionsDropdown extends React.PureComponent {
           logEvent={this.props.logEvent}
         >
           <DownloadMenuItems
+            dashboardId={dashboardId}
             pdfMenuItemTitle={t('Export to PDF')}
             pdfMenuDashboardItemTitle={t('Export dashboard to PDF')}
             imageMenuItemTitle={t('Download as Image')}

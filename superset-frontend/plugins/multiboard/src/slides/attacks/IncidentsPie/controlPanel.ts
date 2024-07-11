@@ -13,6 +13,7 @@ import {
   legendSection,
 } from '@superset-ui/plugin-chart-echarts';
 import {headerSection} from '../../../controls/headerSection';
+import {FONT_SIZE_OPTIONS} from '../../../constants';
 
 const { labelType, labelLine, showLabels, outerRadius, donut, innerRadius } =
   DEFAULT_FORM_DATA;
@@ -132,15 +133,18 @@ const config: ControlPanelConfig = {
         ],
         [
           {
-            name: 'date_label_format',
+            name: 'total_font_size',
             config: {
               type: 'SelectControl',
               freeForm: true,
-              label: t('Date label format'),
+              clearable: true,
+              label: t('Total Font Size'),
               renderTrigger: true,
-              choices: D3_TIME_FORMAT_OPTIONS,
-              default: 'smart_date',
-              description: D3_FORMAT_DOCS,
+              choices: FONT_SIZE_OPTIONS,
+              default: 28,
+              description: t('The size of total value'),
+              visibility: ({ controls }: ControlPanelsContainerProps) =>
+                Boolean(controls?.show_total?.value),
             },
           },
         ],
@@ -153,6 +157,22 @@ const config: ControlPanelConfig = {
               default: false,
               renderTrigger: true,
               description: t('Whether to display the chart date'),
+            },
+          },
+        ],
+        [
+          {
+            name: 'date_label_format',
+            config: {
+              type: 'SelectControl',
+              freeForm: true,
+              label: t('Date label format'),
+              renderTrigger: true,
+              choices: D3_TIME_FORMAT_OPTIONS,
+              default: D3_TIME_FORMAT_OPTIONS[2][0],
+              description: D3_FORMAT_DOCS,
+              visibility: ({ controls }: ControlPanelsContainerProps) =>
+                Boolean(controls?.show_date?.value),
             },
           },
         ],

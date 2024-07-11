@@ -348,7 +348,7 @@ PUBLIC_ROLE_LIKE: str | None = 'Public'
 # Babel config for translations
 # ---------------------------------------------------
 # Setup default language
-BABEL_DEFAULT_LOCALE = "uk"
+BABEL_DEFAULT_LOCALE = "en"
 # Your application default translation path
 BABEL_DEFAULT_FOLDER = "superset/translations"
 # The allowed translation for your app
@@ -393,7 +393,12 @@ class D3Format(TypedDict, total=False):
     currency: list[str]
 
 
-D3_FORMAT: D3Format = {}
+D3_FORMAT: D3Format = {
+    "decimal": ",",
+    "thousands": " ",
+    "grouping": [3],
+    "currency": ["", " ₴.", "$", " €"]
+}
 
 CURRENCIES = ["USD", "EUR", "GBP", "INR", "MXN", "JPY", "CNY"]
 
@@ -693,9 +698,9 @@ SCREENSHOT_LOAD_WAIT = int(timedelta(minutes=1).total_seconds())
 # Selenium destroy retries
 SCREENSHOT_SELENIUM_RETRIES = 5
 # Give selenium an headstart, in seconds
-SCREENSHOT_SELENIUM_HEADSTART = 3
+SCREENSHOT_SELENIUM_HEADSTART = 2
 # Wait for the chart animation, in seconds
-SCREENSHOT_SELENIUM_ANIMATION_WAIT = 5
+SCREENSHOT_SELENIUM_ANIMATION_WAIT = 1
 # Replace unexpected errors in screenshots with real error messages
 SCREENSHOT_REPLACE_UNEXPECTED_ERRORS = False
 # Max time to wait for error message modal to show up, in seconds
@@ -1382,7 +1387,7 @@ WEBDRIVER_TYPE = "firefox"
 WEBDRIVER_WINDOW = {
     "dashboard": (1600, 2000),
     "slice": (3000, 1200),
-    "pixel_density": 1,
+    "pixel_density": 3,
 }
 
 # An optional override to the default auth hook used to provide auth to the offline

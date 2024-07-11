@@ -18,7 +18,7 @@ from typing import Optional
 
 from flask_babel import lazy_gettext as _
 from marshmallow.validate import ValidationError
-
+from superset.commands.exceptions import CommandException
 from superset.commands.exceptions import (
     CommandInvalidError,
     CreateFailedError,
@@ -76,3 +76,7 @@ class DashboardImportError(ImportFailedError):
 
 class DashboardAccessDeniedError(ForbiddenError):
     message = _("You don't have access to this dashboard.")
+
+
+class DashboardPdfInvalidStateError(CommandException):
+    message = _("Invalid state.")
