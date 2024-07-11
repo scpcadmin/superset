@@ -38,6 +38,7 @@ export type EchartsPieFormData = QueryFormData &
     innerRadius: number;
     labelLine: boolean;
     labelType: EchartsPieLabelType;
+    labelTemplate: string | null;
     labelsOutside: boolean;
     metric?: string;
     outerRadius: number;
@@ -45,6 +46,7 @@ export type EchartsPieFormData = QueryFormData &
     numberFormat: string;
     dateFormat: string;
     showLabelsThreshold: number;
+    roseType: 'radius' | 'area' | null;
   };
 
 export enum EchartsPieLabelType {
@@ -56,6 +58,7 @@ export enum EchartsPieLabelType {
   KeyValuePercent = 'key_value_percent',
   ValuePercent = 'value_percent',
   PercentValue = 'percent_value',
+  Template = 'template',
 }
 
 export interface EchartsPieChartProps
@@ -79,6 +82,7 @@ export const DEFAULT_FORM_DATA: EchartsPieFormData = {
   labelsOutside: true,
   showLabelsThreshold: 5,
   dateFormat: 'smart_date',
+  roseType: null,
 };
 
 export type PieChartTransformedProps =
