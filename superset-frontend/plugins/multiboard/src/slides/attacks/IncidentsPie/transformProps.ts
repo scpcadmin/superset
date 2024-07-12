@@ -1,6 +1,6 @@
 import {CategoricalColorNamespace, ChartProps, getTimeFormatter, getValueFormatter} from '@superset-ui/core';
 import {EChartsCoreOption} from 'echarts';
-import {formatPieLabel, getChartPadding,} from '@superset-ui/plugin-chart-echarts';
+import {getChartPadding, parseParams} from '@superset-ui/plugin-chart-echarts';
 import {CallbackDataParams} from 'echarts/types/src/util/types';
 import {AttackState, PieDataItem} from './types';
 import {getLegendProps} from '../../../utils/series';
@@ -63,12 +63,43 @@ export default function transformProps(chartProps: ChartProps) {
     legendMargin,
   );
 
-  const labelFormatter = (params: CallbackDataParams) =>
-    formatPieLabel({
+  const formatter = (params: CallbackDataParams) => {
+    const [name, formattedValue, formattedPercent] = parseParams({
       params,
       numberFormatter,
-      labelType,
     });
+    switch (labelType) {
+      case EchartsPieLabelType.Key:
+        return name;
+      case EchartsPieLabelType.Value:
+        return formattedValue;
+      case EchartsPieLabelType.Percent:
+        return formattedPercent;
+      case EchartsPieLabelType.KeyValue:
+        return `${name}: ${formattedValue}`;
+      case EchartsPieLabelType.KeyValuePercent:
+        return `${name}: ${formattedValue} (${formattedPercent})`;
+      case EchartsPieLabelType.KeyPercent:
+        return `${name}: ${formattedPercent}`;
+      case EchartsPieLabelType.ValuePercent:
+        return `${formattedValue} (${formattedPercent})`;
+      case EchartsPieLabelType.Template:
+        if (!labelTemplate) {
+          return '';
+        }
+        return formatTemplate(
+          labelTemplate,
+          {
+            name,
+            value: formattedValue,
+            percent: formattedPercent,
+          },
+          params,
+        );
+      default:
+        return name;
+    }
+  };
 
   const labelsTypography = {
     fontSize: 12,
@@ -100,7 +131,7 @@ export default function transformProps(chartProps: ChartProps) {
           show: showLabels,
           position: 'outside',
           formatter(params: any) {
-            return `{${params.dataIndex}|${labelFormatter(params)}}`;
+            return `{${params.dataIndex}|${formatter(params)}}`;
           },
           rich: {
             0: {
