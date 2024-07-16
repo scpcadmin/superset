@@ -144,7 +144,7 @@ export default function transformProps(chartProps: ChartProps) {
     series: [
       getUavSupplyChartSeries('Законтрактовано', totalContracted, colorFn, showValue, 1, false),
       getUavSupplyChartSeries('Передано', totalGaveAway, colorFn, showValue, 2, true),
-      getUavSupplyChartSeries(`за ${reportDate}`, latestGaveAway, colorFn, showValue, 2, true),
+      getUavSupplyChartSeries(`за ${reportDate}`, latestGaveAway, colorFn, showValue, 3, true),
     ],
   };
 
