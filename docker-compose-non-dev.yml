@@ -105,8 +105,23 @@ services:
 
 volumes:
   superset_home:
+    driver: local
+    driver_opts:
+      device: $SUPERSET_SUPERSET_HOME_PATH
+      o: bind
+      type: none
     external: false
   db_home:
+    driver: local
+    driver_opts:
+      device: $SUPERSET_DB_PATH
+      o: bind
+      type: none
     external: false
   redis:
+    driver: local
+    driver_opts:
+      device: $SUPERSET_REDIS_PATH
+      o: bind
+      type: none
     external: false
