@@ -73,7 +73,7 @@ export default function transformProps(chartProps: ChartProps) {
     showLegend,
     legendOrientation,
     legendMargin,
-    {top: 90, bottom: 20, left: 15, right: 7}
+    {top: 90, bottom: 20, left: 20, right: 7}
   );
 
   function getTimelineChartSeries(
@@ -164,7 +164,7 @@ export default function transformProps(chartProps: ChartProps) {
             color: LABEL_COLOR,
             fontSize: xLabelFontSize * 1.6,
             fontFamily: 'eUkraine-Medium',
-            padding: [convertInteger(xLabelMargin) - 7, 60, 0, 0],
+            padding: [convertInteger(xLabelMargin) - 7, 70, 0, 0],
           },
         },
       },
