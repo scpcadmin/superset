@@ -1,5 +1,5 @@
-import React, { createRef, useState } from 'react';
-import { styled } from '@superset-ui/core';
+import React, {createRef, useState} from 'react';
+import {styled} from '@superset-ui/core';
 import {
   TargetsListProps,
   TargetsListStylesProps,
@@ -7,8 +7,8 @@ import {
 import ChartHeader from '../../../components/ChartHeader/ChartHeader';
 
 const Styles = styled.div<TargetsListStylesProps>`
-  height: ${({ height }) => height}px;
-  width: ${({ width }) => width}px;
+  height: ${({height}) => height}px;
+  width: ${({width}) => width}px;
 
   .targets {
     display: flex;
@@ -89,32 +89,38 @@ const Styles = styled.div<TargetsListStylesProps>`
   }
 
   /* total width */
+
   .scrollbar::-webkit-scrollbar {
     background-color: #fff;
     width: 16px;
   }
 
   /* background of the scrollbar except button or resizer */
+
   .scrollbar::-webkit-scrollbar-track {
     background-color: #fff;
     border-radius: 16px;
   }
+
   .scrollbar::-webkit-scrollbar-track:hover {
     background-color: #f4f4f4;
   }
 
   /* scrollbar itself */
+
   .scrollbar::-webkit-scrollbar-thumb {
     background-color: #babac0;
     border-radius: 16px;
     border: 5px solid #fff;
   }
+
   .scrollbar::-webkit-scrollbar-thumb:hover {
     background-color: #a0a0a5;
     border: 4px solid #f4f4f4;
   }
 
   /* set button(top and bottom of the scrollbar) */
+
   .scrollbar::-webkit-scrollbar-button {
     display: none;
   }
@@ -140,7 +146,7 @@ export default function TargetsList(props: TargetsListProps) {
   return (
     <Styles ref={rootElem} height={height} width={width}>
       <div className="targets">
-        <ChartHeader title={headerText} fontSize={headerFontSize} />
+        <ChartHeader title={headerText} fontSize={headerFontSize}/>
         <div className="target-list-container scrollbar">
           <ol className="target-list">
             {data.map((item, index) => (
@@ -156,26 +162,17 @@ export default function TargetsList(props: TargetsListProps) {
             ))}
           </ol>
         </div>
-        <div className="description">
-          <ChartHeader title={subheaderText} fontSize={subheaderFontSize} />
-          <p>
-            {selectedItemIndex ? (
-              <>
-                {data[selectedItemIndex].organisation_name} - <br/>
-                {data[selectedItemIndex].description}
-              </>
-            ) : (
-              data.map(
-                (item, index) =>
-                  item.should_display_as_default && (
-                    <React.Fragment key={index}>
-                      {item.organisation_name} - {item.description}
-                    </React.Fragment>
-                  ),
-              )
-            )}
-          </p>
-        </div>
+
+        {selectedItemIndex && selectedItemIndex !== -1 && (
+          <div className="description">
+            <ChartHeader title={subheaderText} fontSize={subheaderFontSize}/>
+            <p>
+              {data[selectedItemIndex].organisation_name} - <br/>
+              {data[selectedItemIndex].description}
+            </p>
+          </div>
+        )}
+      
       </div>
     </Styles>
   );
