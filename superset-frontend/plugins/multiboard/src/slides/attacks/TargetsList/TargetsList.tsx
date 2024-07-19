@@ -132,7 +132,7 @@ export default function TargetsList(props: TargetsListProps) {
   } = props;
   const defaultIndex = data.findIndex(item => item.should_display_as_default);
   const [selectedItemIndex, setSelectedItemIndex] = useState<number | null>(
-    defaultIndex,
+    defaultIndex
   );
 
   const rootElem = createRef<HTMLDivElement>();
@@ -159,7 +159,7 @@ export default function TargetsList(props: TargetsListProps) {
         <div className="description">
           <ChartHeader title={subheaderText} fontSize={subheaderFontSize} />
           <p>
-            {selectedItemIndex !== null ? (
+            {selectedItemIndex ? (
               <>
                 {data[selectedItemIndex].organisation_name} - <br/>
                 {data[selectedItemIndex].description}
