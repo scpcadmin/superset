@@ -163,7 +163,7 @@ export default function TargetsList(props: TargetsListProps) {
           </ol>
         </div>
 
-        {selectedItemIndex && selectedItemIndex !== -1 && (
+        {selectedItemIndex && selectedItemIndex !== -1 ? (
           <div className="description">
             <ChartHeader title={subheaderText} fontSize={subheaderFontSize}/>
             <p>
@@ -171,8 +171,8 @@ export default function TargetsList(props: TargetsListProps) {
               {data[selectedItemIndex].description}
             </p>
           </div>
-        )}
-      
+        ) : null}
+
       </div>
     </Styles>
   );
