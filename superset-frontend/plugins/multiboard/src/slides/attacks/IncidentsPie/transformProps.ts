@@ -4,6 +4,7 @@ import {formatPieLabel, getChartPadding,} from '@superset-ui/plugin-chart-echart
 import {CallbackDataParams} from 'echarts/types/src/util/types';
 import {AttackState, PieDataItem} from './types';
 import {getLegendProps} from '../../../utils/series';
+import {getPrevYearDate} from '../../../utils/formatters';
 
 const convertData = (
   data: AttackState[],
@@ -190,7 +191,7 @@ export default function transformProps(chartProps: ChartProps) {
       ...getLegendProps(showLegend, legendType, legendOrientation),
     },
     series: [
-      ...getPieChartSeries(data[0].date_added, incidentData[0], radius, [
+      ...getPieChartSeries(getPrevYearDate(data[0].date_added), incidentData[0], radius, [
         '25%',
         '35%',
       ]),

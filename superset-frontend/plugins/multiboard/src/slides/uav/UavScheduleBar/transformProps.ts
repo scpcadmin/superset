@@ -4,6 +4,7 @@ import { UavScheduleBarState } from './types';
 import {getLegendProps} from '../../../utils/series';
 import {getChartPadding} from '@superset-ui/plugin-chart-echarts';
 import {convertInteger} from '../../../utils/convertInteger';
+import {MONTH_NAMES, MONTH_NAMES_SHORT} from '../../../constants';
 
 export default function transformProps(chartProps: ChartProps) {
   const { width, height, formData, queriesData } = chartProps;
@@ -35,6 +36,42 @@ export default function transformProps(chartProps: ChartProps) {
     {top: 64, bottom: 90, left: 20, right: 0}
   );
 
+  function getUavScheduleChartSeries(
+    name: string,
+    data: number[],
+    colorFn: (category: string) => string,
+  ) {
+    return {
+      name,
+      data,
+      type: 'bar',
+      barWidth: '6px',
+      itemStyle: {
+        color: colorFn(name),
+      }
+    };
+  }
+
+  const series: any[] = [];
+  const months = [...MONTH_NAMES, 'Всього'];
+  const categories = [...MONTH_NAMES_SHORT, 'Всього'];
+
+  const uavs = data.reduce((acc: any[], { name, amount, month }) => {
+    const item = acc.find(i => i.name === name);
+    if (item) {
+      item.amount[months.indexOf(String(month))] = amount;
+    } else {
+      const amountsArray = new Array(13).fill(0);
+      amountsArray[months.indexOf(String(month))] = amount;
+      acc.push({ name, amount: amountsArray });
+    }
+    return acc;
+  }, []);
+
+  uavs.forEach(uav => {
+    series.push(getUavScheduleChartSeries(uav.name, uav.amount, colorFn));
+  });
+
   const chartOptions: EChartsCoreOption = {
     grid: {
       containLabel: true,
@@ -51,7 +88,7 @@ export default function transformProps(chartProps: ChartProps) {
     },
     xAxis: {
       type: 'category',
-      data: data.map(item => item.month),
+      data: categories,
       axisLabel: {
         color: `rgba(${xLabelColor.r}, ${xLabelColor.g}, ${xLabelColor.b}, ${xLabelColor.a})`,
         fontWeight: 'bold',
@@ -72,17 +109,7 @@ export default function transformProps(chartProps: ChartProps) {
         padding: [0, convertInteger(yLabelMargin), 0, 0],
       },
     },
-    series: [
-      {
-        name: 'Загальна кількість',
-        data: data.map(item => item.amount),
-        type: 'bar',
-        barWidth: '6px',
-        itemStyle: {
-          color: colorFn('Загальна кількість'),
-        }
-      },
-    ],
+    series: series,
   };
 
   return {

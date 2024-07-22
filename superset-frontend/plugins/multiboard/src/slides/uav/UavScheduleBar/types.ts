@@ -5,8 +5,8 @@ import { MetricsCustomizeProps } from '../../attacks/Metrics/types';
 export type UavScheduleBarState = {
   dateAdded: number;
   amount: number;
-  totalCriticalPrevYear: number;
   month: number;
+  name: string;
 };
 
 export interface UavScheduleBarStylesProps {
