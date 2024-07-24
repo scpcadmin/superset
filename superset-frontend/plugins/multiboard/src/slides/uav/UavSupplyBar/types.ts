@@ -7,7 +7,6 @@ export type UavSupplyBarState = {
   totalContracted: number;
   totalGaveAway: number;
   latestGaveAway: number;
-  latestDate: number;
 };
 
 export interface UavSupplyBarStylesProps {

@@ -29,3 +29,9 @@ export const getPrevYearDate = (timestamp: number): number => {
   const newDate = new Date(date.setFullYear(date.getFullYear() - 1));
   return newDate.getTime();
 }
+
+export const getPrevDayDate = (timestamp: number): number => {
+  const date = new Date(timestamp);
+  const newDate = new Date(date.setDate(date.getDate() - 1));
+  return newDate.getTime();
+}
