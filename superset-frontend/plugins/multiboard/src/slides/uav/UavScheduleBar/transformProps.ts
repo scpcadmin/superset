@@ -68,6 +68,19 @@ export default function transformProps(chartProps: ChartProps) {
     return acc;
   }, []);
 
+  /*const total = {
+    name: "Загальна кількість",
+    amount: new Array(13).fill(0)
+  };
+
+  uavs.forEach(uav => {
+    uav.amount.forEach((amount, index) => {
+      total.amount[index] += amount;
+    });
+  });
+
+  uavs.unshift(total);*/
+
   uavs.forEach(uav => {
     series.push(getUavScheduleChartSeries(uav.name, uav.amount, colorFn));
   });
