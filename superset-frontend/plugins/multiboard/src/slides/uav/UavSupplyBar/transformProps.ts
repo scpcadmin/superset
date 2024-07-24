@@ -103,17 +103,6 @@ export default function transformProps(chartProps: ChartProps) {
       axisPointer: {
         type: 'shadow',
       },
-      formatter(params) {
-        let tooltipText = `${params[0].axisValue}<br/>`;
-
-        params.forEach(function (item, index) {
-          if (item.value !== 0) {
-            tooltipText += `${item.marker + item.seriesName}: ${item.value}<br/>`;
-          }
-        });
-
-        return tooltipText;
-      },
     },
     legend: {
       ...getLegendProps(showLegend, legendType, legendOrientation),
