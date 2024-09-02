@@ -309,7 +309,7 @@ class BaseReportState:
         :raises: ReportSchedulePdfFailedError
         """
         screenshots = self._get_tabs_screenshots(data)
-        pdf = build_ocr_sandwich_pdf_from_screenshots(screenshots)
+        pdf = build_pdf_from_screenshots(screenshots)
 
         return pdf
 

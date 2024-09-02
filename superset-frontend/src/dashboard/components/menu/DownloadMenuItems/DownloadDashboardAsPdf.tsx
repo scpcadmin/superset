@@ -59,9 +59,8 @@ export default function DownloadDashboardAsPdf({
       });
 
       const formattedDate = new Date()
-        .toISOString()
-        .replace(/[-:.]/g, '')
-        .slice(0, 15);
+        .toLocaleString('uk-UA')
+        .replace(/[-:., ]/g, '');
       const filename = `${dashboardTitle}_${formattedDate}`;
       const { blob } = response;
       saveAs(blob, filename);

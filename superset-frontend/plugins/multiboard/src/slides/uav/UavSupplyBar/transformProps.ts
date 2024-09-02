@@ -4,7 +4,7 @@ import {getChartPadding} from '@superset-ui/plugin-chart-echarts';
 import {UavSupplyBarState} from './types';
 import {getLegendProps} from '../../../utils/series';
 import {convertInteger} from '../../../utils/convertInteger';
-import { formatDateShort } from '../../../utils/formatters';
+import { formatDateShort, getPrevDayDate } from '../../../utils/formatters';
 
 const TOTAL_RECORD_NAME = 'ЗАГАЛОМ';
 
@@ -29,7 +29,7 @@ export default function transformProps(chartProps: ChartProps) {
   } = formData;
 
   const metricsCustomizeProps = formData as UavSupplyBarCustomizeProps;
-  const reportDate = formatDateShort(queriesData[0].to_dttm);
+  const latestDate = formatDateShort(getPrevDayDate(queriesData[0].to_dttm));
   const data = queriesData[0].data as UavSupplyBarState[];
 
   const colorFn = CategoricalColorNamespace.getScale(colorScheme as string);
@@ -39,6 +39,7 @@ export default function transformProps(chartProps: ChartProps) {
   const totalGaveAway: number[] = [];
   const latestGaveAway: number[] = [];
   let totalRecord: UavSupplyBarState | null = null;
+  let isLatestVisible = false;
 
   data.map(item => {
 
@@ -51,6 +52,8 @@ export default function transformProps(chartProps: ChartProps) {
     totalContracted.push(item.totalContracted);
     totalGaveAway.push(item.totalGaveAway);
     latestGaveAway.push(item.latestGaveAway);
+    if(item.latestGaveAway !== 0) isLatestVisible = true;
+
     categories.push(item.name.split(' ').join('\n'));
   });
 
@@ -103,17 +106,6 @@ export default function transformProps(chartProps: ChartProps) {
       axisPointer: {
         type: 'shadow',
       },
-      formatter(params) {
-        let tooltipText = `${params[0].axisValue}<br/>`;
-
-        params.forEach(function (item, index) {
-          if (item.value !== 0) {
-            tooltipText += `${item.marker + item.seriesName}: ${item.value}<br/>`;
-          }
-        });
-
-        return tooltipText;
-      },
     },
     legend: {
       ...getLegendProps(showLegend, legendType, legendOrientation),
@@ -143,8 +135,8 @@ export default function transformProps(chartProps: ChartProps) {
     },
     series: [
       getUavSupplyChartSeries('Законтрактовано', totalContracted, colorFn, showValue, 1, false),
-      getUavSupplyChartSeries('Передано', totalGaveAway, colorFn, showValue, 2, true),
-      getUavSupplyChartSeries(`за ${reportDate}`, latestGaveAway, colorFn, showValue, 2, true),
+      getUavSupplyChartSeries('Передано', totalGaveAway, colorFn, showValue, 2, false),
+      isLatestVisible ? getUavSupplyChartSeries(`за ${latestDate}`, latestGaveAway, colorFn, showValue, 3, false) : null,
     ],
   };
 

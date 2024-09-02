@@ -1,4 +1,4 @@
-import { ChartProps, CategoricalColorNamespace } from '@superset-ui/core';
+import { CategoricalColorNamespace, ChartProps } from '@superset-ui/core';
 import { EChartsCoreOption } from 'echarts';
 import { getChartPadding } from '@superset-ui/plugin-chart-echarts';
 import { TimelineCustomizeProps, TimelineState } from './types';
@@ -73,8 +73,32 @@ export default function transformProps(chartProps: ChartProps) {
     showLegend,
     legendOrientation,
     legendMargin,
-    {top: 90, bottom: 20, left: 15, right: 7}
+    { top: 90, bottom: 20, left: 20, right: 7 },
   );
+
+  function getIntervalCallback(index, value) {
+    const numberOfDays = data.length;
+    let showEvery: number;
+    if (numberOfDays <= 60) {
+      showEvery = 1;
+    } else if (numberOfDays <= 90) {
+      showEvery = 2;
+    } else if (numberOfDays <= 180) {
+      showEvery = 3;
+    } else if (numberOfDays <= 270) {
+      showEvery = 4;
+    } else if (numberOfDays <= 360) {
+      showEvery = 5;
+    } else showEvery = 6;
+
+    const [y, m, day] = value.split('.').map(Number);
+
+    // Перше число місяця завжди відображаємо
+    const isFirstDayOfMonth = day === 1;
+    if (isFirstDayOfMonth) return true;
+
+    return index % showEvery === 0;
+  }
 
   function getTimelineChartSeries(
     name: string,
@@ -122,7 +146,8 @@ export default function transformProps(chartProps: ChartProps) {
       },
       axisTick: { show: false },
       axisLabel: {
-        interval: 0,
+        interval: getIntervalCallback,
+        hideOverlap: false,
         formatter(value, index) {
           const [y, m, day] = value.split('.').map(Number);
           const date = new Date(y, m - 1, day);
@@ -156,15 +181,15 @@ export default function transformProps(chartProps: ChartProps) {
           },
           monthRight: {
             color: LABEL_COLOR,
-            padding: [convertInteger(xLabelMargin) - 7, 0, 0, 70],
+            padding: [convertInteger(xLabelMargin) - 7, 0, 0, 10],
             fontSize: xLabelFontSize * 1.6,
             fontFamily: 'eUkraine-Medium',
           },
           monthLeft: {
             color: LABEL_COLOR,
+            padding: [convertInteger(xLabelMargin) - 7, 70, 0, 0],
             fontSize: xLabelFontSize * 1.6,
             fontFamily: 'eUkraine-Medium',
-            padding: [convertInteger(xLabelMargin) - 7, 60, 0, 0],
           },
         },
       },
