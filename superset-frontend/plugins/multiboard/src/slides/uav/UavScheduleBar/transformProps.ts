@@ -1,13 +1,13 @@
-import { ChartProps, CategoricalColorNamespace } from '@superset-ui/core';
-import { EChartsCoreOption } from 'echarts';
-import { UavScheduleBarState } from './types';
+import {ChartProps, CategoricalColorNamespace} from '@superset-ui/core';
+import {EChartsCoreOption} from 'echarts';
+import {UavScheduleBarState} from './types';
 import {getLegendProps} from '../../../utils/series';
 import {getChartPadding} from '@superset-ui/plugin-chart-echarts';
 import {convertInteger} from '../../../utils/convertInteger';
 import {MONTH_NAMES, MONTH_NAMES_SHORT} from '../../../constants';
 
 export default function transformProps(chartProps: ChartProps) {
-  const { width, height, formData, queriesData } = chartProps;
+  const {width, height, formData, queriesData} = chartProps;
   const {
     colorScheme,
     headerText,
@@ -55,15 +55,17 @@ export default function transformProps(chartProps: ChartProps) {
   const series: any[] = [];
   const months = [...MONTH_NAMES, 'Всього'];
   const categories = [...MONTH_NAMES_SHORT, 'Всього'];
+  let maxAmount = 0;
 
-  const uavs = data.reduce((acc: any[], { name, amount, month }) => {
+  const uavs = data.reduce((acc: any[], {name, amount, month}) => {
     const item = acc.find(i => i.name === name);
     if (item) {
       item.amount[months.indexOf(String(month))] = amount;
+      if (maxAmount < amount) maxAmount = amount;
     } else {
       const amountsArray = new Array(13).fill(0);
       amountsArray[months.indexOf(String(month))] = amount;
-      acc.push({ name, amount: amountsArray });
+      acc.push({name, amount: amountsArray});
     }
     return acc;
   }, []);
@@ -114,7 +116,10 @@ export default function transformProps(chartProps: ChartProps) {
       },
     },
     yAxis: {
-      type: 'value',
+      type: 'log',
+      logBase: 10,
+      min: 1,
+      max: maxAmount,
       axisLabel: {
         color: `rgba(${yLabelColor.r}, ${yLabelColor.g}, ${yLabelColor.b}, ${yLabelColor.a})`,
         fontWeight: 'bold',
