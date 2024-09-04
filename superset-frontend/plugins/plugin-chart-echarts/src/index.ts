@@ -70,6 +70,7 @@ export * from './controls';
 export * from './utils/series';
 export * from './constants';
 export * from './Pie/transformProps';
+export * from './Pie/types';
 export { default as Echart } from './components/Echart';
 /**
  * Note: this file exports the default export from EchartsTimeseries.tsx.

@@ -1,6 +1,6 @@
 import {CategoricalColorNamespace, ChartProps, getTimeFormatter, getValueFormatter} from '@superset-ui/core';
 import {EChartsCoreOption} from 'echarts';
-import {getChartPadding, parseParams} from '@superset-ui/plugin-chart-echarts';
+import {getChartPadding, parseParams, EchartsPieLabelType} from '@superset-ui/plugin-chart-echarts';
 import {CallbackDataParams} from 'echarts/types/src/util/types';
 import {AttackState, PieDataItem} from './types';
 import {getLegendProps} from '../../../utils/series';
